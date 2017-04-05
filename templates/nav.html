@@ -1,0 +1,411 @@
+{% load sale_tags %}
+{% load teacher_tags %}
+<header class="navbar navbar-inverse navbar-static-top" role="banner" style="margin-bottom: 0">
+    <div class="container">
+        <!-- Brand and toggle get grouped for better mobile display -->
+        <div class="nav navbar-nav">
+            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                    data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                <span class="sr-only">Toggle navigation</span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+                <span class="icon-bar"></span>
+            </button>
+            <a class="navbar-brand" href="/">业务管理系统</a>
+        </div>
+
+        <!-- Collect the nav links, forms, and other content for toggling -->
+        <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+            <ul class="nav navbar-nav">
+                {% if user.userprofile.title.role_name in  'admin' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">系统管理 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class=""><a href="{% url 'super:titleManage' %}" target="_self">职位管理</a></li>
+                            <li class=""><a href="{% url 'super:logoManage' %}" target="_self">Logo图片管理</a></li>
+                            <li class=""><a href="{% url 'super:newsPush' %}" target="_self">消息发布</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if user.userprofile.title.role_name in 'admin ops' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">后台管理 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class=""><a href="{% url 'ops:userManage' %}" target="_self">用户管理</a></li>
+                            <li class=""><a href="{% url 'sale:saleManage' %}" target="_self">开发部ID</a></li>
+                            <li class=""><a href="{% url 'teacher:teacherManage' %}" target="_self">客户管理部ID</a></li>
+{#                            <li class=""><a href="{% url 'spot:teacherManage' %}" target="_self">现货客户管理部ID</a></li>#}
+                            <li class=""><a href="{% url 'bursar:bursarManage' %}" target="_self">财务部ID</a></li>
+                            <li class=""><a href="{% url 'wxqq:wxManage' %}" target="_self">开发部微信管理</a></li>
+                            <li class=""><a href="{% url 'wxqq:qqManage' %}" target="_self">开发部QQ管理</a></li>
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if user.userprofile.title.role_name in 'admin ops sale saleboss salemanager' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">开发菜单 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            <li class=""><a href="{% url 'customer:customerManage' %}" target="_self">客户管理</a></li>
+                            {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'saleboss' or user.userprofile.title.role_name == 'salemanager' %}
+                                <li class=""><a href="{% url 'sale:dishonestCustomer' %}" target="_self">不诚信客户</a></li>
+                                {% if user.userprofile.title.role_name != 'salemanager' %}
+                                   <li class=""><a href="{% url 'sale:dishonestCustomerReport' %}" target="_self">不诚信客户汇总</a></li>
+                                {% endif %}
+                                <li class=""><a href="{% url 'sale:saleKpiReport' %}" target="_self">开发绩效汇总</a></li>
+                                <li class=""><a href="{% url 'sale:saleManagerPasswordManage' %}" target="_self">开发部门密钥管理</a></li>
+                            {% endif %}
+                            {% if user.userprofile.title.role_name == 'salemanager' %}
+                                <li class=""><a href="{% url 'sale:saleKpiReportForManager' %}" target="_self">有效客户增长趋势</a></li>
+                            {% endif %}
+                            {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'saleboss'  %}
+                                <li class=""><a href="{% url 'ops:userManage' %}" target="_self">用户管理</a></li>
+                                <li class=""><a href="{% url 'sale:saleManage' %}" target="_self">开发部ID</a></li>
+                                <li class=""><a href="{% url 'sale:saleKpiReportSerial' %}" target="_self">有效客户增长趋势</a></li>
+                                <li class=""><a href="{% url 'bursar:payCompanyReport' %}" target="_self">公司盈利归属汇总</a></li>
+                                <li class=""><a href="{% url 'bursar:payCompanySerialReport' %}" target="_self">盈利归属趋势图</a></li>
+                            {% endif %}
+{#                            <li class=""><a href="{% url 'customer:customerManage' %}" target="_self">客户管理</a></li>#}
+                            <li class=""><a href="{% url 'wxqq:wxManage' %}" target="_self">业务微信管理</a></li>
+                            <li class=""><a href="{% url 'wxqq:qqManage' %}" target="_self">业务QQ管理</a></li>
+                           {% if user.userprofile.title.role_name == 'salemanager' %}
+                               <li class=""><a href="{% url 'bursar:payReport' %}" target="_self">部门收款汇总表</a></li>
+                           {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if user.userprofile.title.role_name in 'admin ops teacher teacherboss teachermanager' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">客户管理专员菜单 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            {% if user.userprofile.title.role_name in 'admin ops teacher teachermanager teacherboss' %}
+                            <li class=""><a href="{% url 'customer:customerHandle' %}" target="_self">交易管理</a></li>
+                            {% endif %}
+                            {% if user.userprofile.title.role_name in 'admin ops teacherboss teachermanager' %}
+{#                                <li class=""><a href="{% url 'customer:noTradeCustomerReport' %}" target="_self">待交易客户汇总</a></li>#}
+                                <li class=""><a href="{% url 'customer:tradeTypeReport' %}" target="_self">交易分类汇总</a></li>
+{#                                <li class=""><a href="{% url 'customer:dCustomerReport' %}" target="_self">D类客户开发趋势图</a></li>#}
+                                <li class=""><a href="{% url 'customer:analyzeReport' %}" target="_self">盈亏透视分析表</a></li>
+                                <li class=""><a href="{% url 'bursar:payReport' %}" target="_self">收款汇总表</a></li>
+                                <li class=""><a href="{% url 'sale:dishonestCustomer' %}" target="_self">不诚信客户</a></li>
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+{#                {% if user.userprofile.title.role_name in 'admin ops spotteacher spotmanager teachermanager teacherboss' %}#}
+{#                    <li class="dropdown">#}
+{#                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"#}
+{#                           aria-haspopup="true" aria-expanded="false">现货客户管理<span class="caret"></span></a>#}
+{#                        <ul class="dropdown-menu">#}
+{#                            <li class=""><a href="{% url 'spot:spotCustomer' %}" target="_self">现货管理</a></li>#}
+{#                            {% if user.userprofile.title.role_name in 'admin ops spotmanager' %}#}
+{#                            <li class=""><a href="{% url 'spot:spotReport' %}" target="_self">现货汇总报表</a></li>#}
+{#                            {% endif %}#}
+{#                        </ul>#}
+{#                    </li>#}
+{#                {% endif %}#}
+                {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'bursar' or user.userprofile.title.role_name == 'bursarmanager' or user.userprofile.title.role_name == 'saleboss' %}
+                    <li class="dropdown">
+                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
+                           aria-haspopup="true" aria-expanded="false">财务菜单 <span class="caret"></span></a>
+                        <ul class="dropdown-menu">
+                            {% if not user.userprofile.title.role_name == 'saleboss' %}
+{#                            <li class=""><a href="{% url 'customer:customerPay' %}" target="_self">收款管理</a></li>#}
+                            <li class=""><a href="{% url 'customer:tradePayManage' %}" target="_self">待收款管理</a></li>
+                            {% endif %}
+
+                            <li class=""><a href="{% url 'bursar:payReport' %}" target="_self">已收款汇明细</a></li>
+                            {% if user.userprofile.title.role_name in 'admin ops bursarmanager' %}
+                                <li class=""><a href="{% url 'bursar:payTypeReport' %}" target="_self">支付方式汇总</a></li>
+                                <li class=""><a href="{% url 'sale:saleKpiReport' %}" target="_self">开发绩效汇总</a></li>
+{#                            <li class=""><a href="{% url 'bursar:payCompanyReport' %}" target="_self">公司盈利归属汇总</a></li>#}
+                            {% endif %}
+                            {% if user.userprofile.title.role_name in 'admin ops bursarmanager' or user.userprofile.title.role_name == 'teachermanager' %}
+                            <li class=""><a href="{% url 'bursar:payStockReport' %}" target="_self">产品盈利汇总</a></li>
+{#                            <li class=""><a href="{% url 'bursar:payCompanySerialReport' %}" target="_self">盈利归属趋势图</a></li>#}
+                            {% endif %}
+                        </ul>
+                    </li>
+                {% endif %}
+                {% if user.userprofile.title.role_name in 'admin sale salemanager saleboss teacher teachermanager teacherboss bursar bursarmanager ops' %}
+                   <div class="nav navbar-nav">
+                     <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                       data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+                      <span class="sr-only">Toggle navigation</span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                      <span class="icon-bar"></span>
+                     </button>
+                       <a class="navbar-brand" style="font-size: 14px" href="{% url 'ops:systemLog' %}">版本更新</a>
+                   </div>
+                {% endif %}
+
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.is_authenticated %}
+                        <li class=""><a href="{% url 'super:logout' %}" target="_self">退出</a></li>
+                    {% endif %}
+            </ul>
+            <ul class="nav navbar-nav navbar-right">
+                    {% if request.user.is_authenticated %}
+                        <li class="">
+                            <a href="{% url 'super:userInfo' %}" target="_self">
+                            {% if request.user.userprofile.title.role_name == 'sale' %}
+                                {% getSaleIdByUserId request.user.id %} {{ request.user.userprofile.nick }}
+                            {% elif request.user.userprofile.title.role_name == 'teacher' %}
+                                {% getTeacherIdByUserId request.user.id %} {{ request.user.userprofile.nick }}
+                            {% else %}
+                                {{ request.user.userprofile.nick }}
+                            {% endif %}
+                            </a>
+                        </li>
+                    {% endif %}
+            </ul>
+
+{#            <ul class="nav navbar-nav navbar-right">#}
+{#                <li class="dropdown">#}
+{#                    <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"#}
+{#                               aria-haspopup="true" aria-expanded="false">用户菜单 <span class="caret"></span></a>#}
+{#                    <ul class="dropdown-menu">#}
+{#                        {% if request.user.is_authenticated %}#}
+{#                            <li class=""><a href="{% url 'super:userInfo' %}" target="_self">{{ request.user.userprofile.nick }}</a></li>#}
+{#                            <li class=""><a href="{% url 'super:logout' %}" target="_self">注销</a></li>#}
+{#                        {% else %}#}
+{#                            <li class=""><a href="{% url 'super:login' %}" target="_self">登陆</a></li>#}
+{#                        {% endif %}#}
+{#                    </ul>#}
+{#                </li>#}
+{#             </ul>#}
+
+        </div><!-- /.navbar-collapse -->
+    </div>
+</header>
+{% load sale_tags %}
+{% load teacher_tags %}
+{#{% if request.user.is_authenticated  %}#}
+{#<div id="leftSidebar" class="left-sidebar" >#}
+{#<button id="leftSidebarToggle" style="width: 100%"><span class="glyphicon glyphicon-align-justify"></span></button>#}
+{#<div id="leftSidebarTable">#}
+{#<table class="table table-bordered"  style="margin-bottom: 0">#}
+{#    <tr>#}
+{#        <td>用户名</td>#}
+{#        <td>{{ request.user.username }}</td>#}
+{#    </tr>#}
+{#    <tr>#}
+{#        <td>职位</td>#}
+{#        <td>{{ request.user.userprofile.title.role_desc }}</td>#}
+{#    </tr>#}
+{#    {% if request.user.userprofile.title.role_name == 'sale' %}#}
+{#        <tr>#}
+{#            <td>ID</td>#}
+{#            <td>{% getSaleIdByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>公司</td>#}
+{#            <td>{% getSaleCompanyByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>部门</td>#}
+{#            <td>{% getSaleDepartmentByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>退单率</td>#}
+{#            <td>{% getChargebackByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#    {% endif %}#}
+{#    {% if request.user.userprofile.title.role_name == 'teacher' %}#}
+{#        <tr>#}
+{#            <td>ID</td>#}
+{#            <td>{% getTeacherIdByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>公司</td>#}
+{#            <td>{% getTeacherCompanyByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#        <tr>#}
+{#            <td>部门</td>#}
+{#            <td>{% getTeacherDepartmentByUserId request.user.id %}</td>#}
+{#        </tr>#}
+{#    {% endif %}#}
+{#</table>#}
+{#</div>#}
+{#</div>#}
+{#{% endif %}#}
+<script type="text/javascript">
+    $(function(){
+        $('#leftSidebarToggle').click(function(){
+            $('#leftSidebarTable').slideToggle('fast');
+        });
+        moveSidebarDiv();
+        $(window).resize(function(){
+            moveSidebarDiv();
+        }) ;
+    });
+</script>
+
+<div class="modal fade" id="msgModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h4 class="modal-title">返回信息</h4>
+            </div>
+            <div class="modal-body">
+                <div id="msg" class="alert alert-info" ></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="text/javascript">
+    function showMsgModal(msg,msgLevel){
+        $('#msg').text(msg);
+        if(msgLevel == 'info'){
+            $('#msg').attr("class",'alert alert-info' );
+        }else{
+            $('#msg').attr("class",'alert alert-danger');
+        }
+        $('#msgModal').modal('show');
+    }
+    $('#msgModal').on('hidden.bs.modal', function() {
+            $('body').css("padding",0);
+    });
+</script>
+
+<audio src="/static/assets/sound/incoming_transmission.ogg" id="transmissionAudio">
+您的浏览器不支持音频播放
+</audio>
+<script type="text/javascript">
+    var Toast = function(config) {
+        this.context = config.context == null ? $('body') : config.context;//上下文
+        this.message = config.message;//显示内容
+        this.time = config.time == null ? 3000 : config.time;//持续时间
+        this.left = config.left;//距容器左边的距离
+        this.top = config.top;//距容器上方的距离
+        this.init();
+    }
+    var msgEntity;
+    Toast.prototype = {
+        //初始化显示的位置内容等
+        init : function(){
+        $("#toastMessage").remove();
+        //设置消息体
+        var msgDIV = new Array();
+        msgDIV.push('<div id="toastMessage">');
+        msgDIV.push('<span>'+this.message+'</span>');
+        msgDIV.push('</div>');
+        msgEntity = $(msgDIV.join('')).appendTo(this.context);
+        //设置消息样式
+        var left = this.left == null ? this.context.width()-msgEntity.find('span').width()-100 : this.left;
+        var top = this.top == null ? '100px' : this.top;
+        msgEntity.css({position:'absolute',top:top,'z-index':'9999',left:left,
+          'background-color':'green',color:'white','font-size':'18px',padding:'10px',margin:'10px'});
+        msgEntity.hide();
+         },
+        //显示动画
+        show :function(){
+            msgEntity.fadeIn(this.time/2);
+            msgEntity.fadeOut(this.time/2);
+        }
+    };
+
+    {% if request.user.is_authenticated %}
+{#    setTimeout("showTransmission()", 5000);#}
+    {% endif %}
+    function showTransmission(){
+        $.post(
+                "{% url 'super:getTransmission' %}",
+                function(result) {
+                    if(result.hasMessage){
+                        $('#transmissionAudio')[0].play();
+                        new Toast({context:$('body'),message:result.msg}).show();
+                    }
+                },
+                'json'
+        )
+        setTimeout("showTransmission()", 5000)
+    }
+</script>
+{##}
+{#<div class="modal fade" id="addNoticeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"#}
+{#         aria-hidden="true">#}
+{#    <div class="modal-dialog">#}
+{#        <div class="modal-content">#}
+{#            <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>#}
+{#                <h4 class="modal-title">管理通知</h4>#}
+{#            </div>#}
+{##}
+{#            <div class="modal-body">#}
+{#                <!-- The form is placed inside the body of modal -->#}
+{#                <form id="addNoticeForm" method="post" class="form-horizontal">#}
+{#                    <div class="form-group">#}
+{#                        <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="content">内容</label>#}
+{#                        <div class="col-md-5">#}
+{#                            <textarea class="form-control" id="content" name="content"></textarea>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                    <div class="modal-footer">#}
+{#                        <div class="form-group">#}
+{#                            <div class="col-md-5 col-md-offset-3">#}
+{#                                <button id="addNoticeBtn" type="submit" class="btn btn-sm btn-primary">提交</button>#}
+{#                            </div>#}
+{#                        </div>#}
+{#                    </div>#}
+{#                </form>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
+{#</div>#}
+{##}
+{#<script type="text/javascript">#}
+{#    $(function () {#}
+{#        formValidator();#}
+{#        $('#addNoticeModal').on('hidden.bs.modal', function() {#}
+{#            resetFormValidator();#}
+{#        });#}
+{#    });#}
+{##}
+{#   function formValidator(){#}
+{#        $('#addNoticeForm').bootstrapValidator({#}
+{#            excluded: [':disabled'],#}
+{#            message: 'This value is not valid',#}
+{#            feedbackIcons: {#}
+{#                valid: 'glyphicon glyphicon-ok',#}
+{#                invalid: 'glyphicon glyphicon-remove',#}
+{#                validating: 'glyphicon glyphicon-refresh'#}
+{#            },#}
+{#            fields: {#}
+{#                content: {#}
+{#                    validators: {#}
+{#                        notEmpty: {#}
+{#                            message: '必填项'#}
+{#                        }#}
+{#                    }#}
+{#                }#}
+{#            },#}
+{#            submitHandler: function (validator, form, submitButton) {#}
+{#                $('#addNoticeModal').modal('hide');#}
+{#                  $.post(#}
+{#                    "{% url 'super:addNotice' %}",#}
+{#                    form.serialize(),#}
+{#                    function(result) {#}
+{#                        showMsgModal(result.msg, result.msgLevel);#}
+{#                    },#}
+{#                    'json'#}
+{#                );#}
+{#            }#}
+{#        });#}
+{#   }#}
+{##}
+{#    function resetFormValidator(){#}
+{#        var addNoticeFormSelector = $('#addNoticeForm');#}
+{#        addNoticeFormSelector.data('bootstrapValidator').destroy();#}
+{#        formValidator();#}
+{#    }#}
+{#</script>#}
+
+

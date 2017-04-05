@@ -1,0 +1,94 @@
+<table class="table table-bordered col-md-12 table-hover">
+    <thead class="bg-info">
+        <tr>
+{#            <td>ID</td>#}
+            <td>交易时间</td>
+            <td>入金</td>
+            <td>出金</td>
+            <td>盈亏</td>
+            <td>手续费</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% if spotPage %}
+    {% for spotObj in spotPage %}
+        <tr>
+{#            <td>{{ spotObj.id }}</td>#}
+            <td>{{ spotObj.create }}</td>
+
+            <td style="color:red">
+                {% if spotObj.cash > 0 %} {{ spotObj.cash}}{% else %} - {% endif %}
+            </td>
+            <td style="color:mediumseagreen">
+                {% if spotObj.cash < 0 %} {{ spotObj.cash}}{% else %} - {% endif %}
+            </td>
+            <td style="color:
+                {% if spotObj.profit > 0 %}red {% endif %}
+                {% if spotObj.profit < 0 %}mediumseagreen {% endif %}
+                ">
+                {{ spotObj.profit}}</td>
+            <td style="color:mediumseagreen ">{{ spotObj.tax}}</td>
+            <td>
+                {% if request.user.userprofile.title.role_name in 'spotmanager ops admin' or request.user.userprofile.title.role_name == 'spotteacher'%}
+                <button type="button" class="btn btn-sm btn-primary" onclick="handleSpot(this)"
+                    data-hsid="{{ spotObj.id }}"
+                    data-hstype="{{ spotObj.type }}"
+                    data-hscreate="{{ spotObj.create }}"
+                    data-hsprofit="{{ spotObj.profit }}"
+                    data-hstax="{{ spotObj.tax }}"
+                    data-hscash="{{ spotObj.cash }}"
+                    data-hscustomerid="{{ spotObj.customer.id }}"
+                >修改</button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% else %}
+         <tr><td colspan="5">无交易信息</td></tr>
+    {% endif %}
+        <tr>
+            <td>合计</td>
+            <td style="color:red">
+                 {% if cashTotal > 0 %}{{ cashTotal }}{% else %} - {% endif %}</td>
+            <td style="color:mediumseagreen">
+                 {% if cashTotal < 0 %}{{ cashTotal }}{% else %} - {% endif %}</td>
+            <td style="color:
+                {% if profitTotal > 0 %} red{% endif %}
+                {% if profitTotal < 0 %} mediumseagreen{% endif %}
+                ">
+                {{ profitTotal }}</td>
+            <td style="color: mediumseagreen">{{ taxTotal }}</td>
+            <td></td>
+        </tr>
+        <tr>
+            <td></td>
+            <td></td>
+            <td></td>
+            <td>剩余</td>
+            <td style="color:
+                {% if sumTotal > 0  %} red {% endif %}
+                {% if sumTotal < 0  %} mediumseagreen {% endif %}
+                ">
+                {{ sumTotal }}</td>
+            <td></td>
+        </tr>
+    </tbody>
+</table>
+<nav class="navbar-right">
+  <ul class="pagination">
+    <li>
+        {% if tradePage.has_previous %}
+            <span aria-hidden="true" onclick="loadTradeDiv('page={{ tradePage.previous_page_number }}&{{ requestArgs }}')">&laquo;</span>
+        {% endif %}
+    </li>
+    <li><span class="current">
+           第{{ tradePage.number }}/{{ tradePage.paginator.num_pages }}页
+        </span></li>
+    <li>
+        {% if tradePage.has_next %}
+            <span aria-hidden="true" onclick="loadTradeDiv('page={{ tradePage.next_page_number }}&{{ requestArgs }}')">&raquo;</span>
+        {% endif %}
+    </li>
+  </ul>
+</nav>

@@ -1,0 +1,529 @@
+{% extends 'base_full_noheader.html' %}
+
+{% block title %}用户管理{% endblock %}
+{% block content %}
+
+    <div class="modal fade" id="addUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">用户管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="addUserForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="nick" >姓名</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="nick" name="nick"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="userid" name="userid"/>
+                            <input type="hidden" value="" class="" id="page" name="page"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="username">ID</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="username" name="username"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="不允许为空"/>
+                            </div>
+                        </div>
+
+                        <script type="text/javascript">
+                            $('#nick').on('change', function(){
+                                $('#username').val(codefans_net_CC2PY($('#nick').val()));
+
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="cid" >身份证</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="cid" name="cid"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="company" >公司</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="company" name="company"
+                                {% if request.user.userprofile.title.role_name == 'saleboss' %}
+                                    value="{{ request.user.userprofile.company }}" readonly
+                                {% endif %}
+                                />
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="department" >部门</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="department" name="department"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="group" >组</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="group" name="group"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="title" >职位</label>
+                            <div class="col-md-5">
+                                <select type="select" class="form-control" id="title" name="title">
+                                    {% if request.user.userprofile.title.role_name == 'admin' %}
+                                        <option value="1"> 超级管理员</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'salemanager saleboss admin ops' %}
+                                        <option value="3"> 客户开发经理</option>
+                                        <option value="4"> 客户开发专员</option>
+                                        <option value="5"> 客户开发总经理</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'teachermanager teacherboss admin ops' %}
+                                        <option value="6"> 客户管理专员</option>
+                                        <option value="7"> 客户管理经理</option>
+                                        <option value="8"> 客户管理总经理</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'bursarmanager admin ops' %}
+                                        <option value="9"> 财务专员</option>
+                                        <option value="10"> 财务经理</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'admin ops' %}
+                                        <option value="11"> 管理员</option>
+{#                                        <option value="12"> 现货老师</option>#}
+{#                                        <option value="13"> 现货经理</option>#}
+                                    {% endif %}
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="addUserBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editUserModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">用户管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="editUserForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="nick" >姓名</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="enick" name="nick"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="euserid" name="userid"/>
+                            <input type="hidden" value="" class="" id="epage" name="page"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="username">ID</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="eusername" name="username"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="不允许为空"/>
+                            </div>
+                        </div>
+
+                        <script type="text/javascript">
+                            $('#enick').on('change', function(){
+                                $('#eusername').val(codefans_net_CC2PY($('#enick').val()));
+
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="cid" >身份证</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="ecid" name="cid"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="company" >公司</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="ecompany" name="company" placeholder="格式:A" />
+{#                                {% if request.user.userprofile.title.role_name == 'saleboss' %}#}
+{#                                    value="{{ request.user.userprofile.company }}" readonly#}
+{#                                {% endif %}#}
+{#                                />#}
+{#                                <select type="select" class="form-control" id="ecompany" name="company" >#}
+{#                                   <option value="A" {% if request.user.userprofile.company == 'A' %} selected {% endif %}>A</option>#}
+{#                                   <option value="B" {% if request.user.userprofile.company == 'B' %} selected {% endif %}>B</option>#}
+{#                                   <option value="C" {% if request.user.userprofile.company == 'C' %} selected {% endif %}>C</option>#}
+{#                                   <option value="D" {% if request.user.userprofile.company == 'D' %} selected {% endif %}>D</option>#}
+{#                                   <option value="E" {% if request.user.userprofile.company == 'E' %} selected {% endif %}>E</option>#}
+{#                                   <option value="F" {% if request.user.userprofile.company == 'F' %} selected {% endif %}>F</option>#}
+{#                                   <option value="G" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>G</option>#}
+{#                                   <option value="H" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>H</option>#}
+{#                                   <option value="I" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>I</option>#}
+{#                                   <option value="J" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>J</option>#}
+{#                                   <option value="K" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>K</option>#}
+{#                                   <option value="L" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>L</option>#}
+{#                                   <option value="M" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>M</option>#}
+{#                                   <option value="N" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>N</option>#}
+{#                                   <option value="O" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>O</option>#}
+{#                                   <option value="P" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>P</option>#}
+{#                                   <option value="Q" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>Q</option>#}
+{#                                   <option value="R" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>R</option>#}
+{#                                   <option value="S" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>S</option>#}
+{#                                   <option value="T" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>T</option>#}
+{#                                   <option value="U" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>U</option>#}
+{#                                   <option value="V" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>V</option>#}
+{#                                   <option value="W" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>W</option>#}
+{#                                   <option value="X" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>X</option>#}
+{#                                   <option value="Y" {% if request.user.userprofile.company == 'G' %} selected {% endif %}>Y</option>#}
+{#                                   <option value="Z" {% if request.user.userprofile.company == 'Z' %} selected {% endif %}>Z</option>#}
+{#                                </select>#}
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="department" >部门</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="edepartment" name="department"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="group" >组</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="egroup" name="group"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="title" >职位</label>
+                            <div class="col-md-5">
+                                <select type="select" class="form-control" id="etitle" name="title">
+                                    {% if request.user.userprofile.title.role_name == 'admin' %}
+                                        <option value="1"> 超级管理员</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'salemanager saleboss admin ops' %}
+                                        <option value="3"> 客户开发经理</option>
+                                        <option value="4"> 客户开发专员</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'teachermanager teacherboss admin ops' %}
+                                        <option value="6"> 客户管理专员</option>
+                                        <option value="7"> 客户管理经理</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'bursarmanager admin ops' %}
+                                        <option value="9"> 财务专员</option>
+                                        <option value="10"> 财务经理</option>
+                                    {% endif %}
+                                    {% if request.user.userprofile.title.role_name in 'admin ops' %}
+                                        <option value="11"> 管理员</option>
+                                        <option value="12"> 现货老师</option>
+                                        <option value="13"> 现货经理</option>
+                                        <option value="5"> 客户开发总经理</option>
+                                        <option value="8"> 客户管理总经理</option>
+                                    {% endif %}
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="editUserBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="chargebackSerialModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 900px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">退单率</h4>
+                </div>
+
+                <div class="modal-body" >
+                    <div id="chargebackSerialDiv" style="width: 900px;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript">
+    $(function () {
+        formValidator();
+        loadUserDiv();
+        $('#addUserModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+        $('#editUserModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+    });
+    function resetFormValidator(){
+        $('#addUserForm input').not('#page').not('#company').val("");
+        $('#addUserForm').data('bootstrapValidator').destroy();
+        $('#editUserForm input').not('#page').not('#company').val("");
+        $('#editUserForm').data('bootstrapValidator').destroy();
+        $('#searchUserForm').data('bootstrapValidator').destroy();
+        formValidator();
+    }
+    function loadUserDiv(data){
+        $('#userDiv').load("{% url 'ops:queryUser' %}", data);
+    }
+    function formValidator(){
+        $('#addUserForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                username: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入用户ID'
+                        },
+                        remote: {
+                            message: 'ID已存在,请手动编辑',
+                            url: '{% url "ops:checkUserId" %}',
+                        }
+
+                    }
+                },
+                nick: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入用户姓名'
+                        }
+                    }
+                },
+                cid: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入身份证号',
+                        },
+                        regexp: {
+                            regexp: "^[0-9|x|X]{18}$",
+                            message: "请输入正确的18位身份证号"
+                        },
+                        remote: {
+                            message: '身份证号已存在',
+                            url: '{% url "ops:checkCId" %}',
+                        }
+                    }
+                },
+                company: {
+                    validators: {
+                        notEmpty: {
+                            message: '公司代码不能为空',
+                        },
+                        stringLength: {
+                            max: 1,
+                            message: "公司代码只包含一个字符"
+                        },
+                        regexp: {
+                            regexp: "^[A-Z]$",
+                            message: "公司代码必须为大写字母"
+                        },
+                    }
+                }
+            },
+            submitHandler: function (validator, form, submitButton) {
+
+                $('#addUserModal').modal('hide');
+                $.post(
+                    "{% url 'ops:addUser' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        data = 'page='+$('#page').val();
+                        loadUserDiv(data);
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#editUserForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                username: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入用户ID'
+                        },
+                        remote: {
+                            message: 'ID已存在,请手动编辑',
+                            url: '{% url "ops:checkEditUserId" %}',
+                        }
+
+                    }
+                },
+                nick: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入用户姓名'
+                        }
+                    }
+                },
+                cid: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入身份证号',
+                        },
+                        regexp: {
+                            regexp: "^[0-9|x|X]{18}$",
+                            message: "请输入正确的18位身份证号"
+                        },
+                        remote: {
+                            message: '身份证号已存在',
+                            url: '{% url "ops:checkEditCId" %}',
+                        }
+                    }
+                }
+            },
+            submitHandler: function (validator, form, submitButton) {
+                console.log();
+                $('#editUserModal').modal('hide');
+                $.post(
+                    "{% url 'ops:addUser' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        data = 'page='+$('#epage').val();
+                        var arr = new Array(2);
+                        arr[0] = data;
+                        arr[1] = $('#searchUserForm').serialize();
+                        data = arr.join("&");
+                        loadUserDiv(data);
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#searchUserForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+            },
+            submitHandler: function (validator, form, submitButton) {
+                loadUserDiv(form.serialize());
+                resetFormValidator()
+            }
+        });
+    }
+    function editUser(obj){
+        $('#euserid').val($(obj).data("userid"));
+        $('#epage').val($(obj).data("page"));
+        $('#eusername').val($(obj).data("username"));
+        $('#enick').val($(obj).data("nick"));
+        $('#ecid').val($(obj).data("cid"));
+        $('#ecompany').val($(obj).data("company"));
+        $('#edepartment').val($(obj).data("department"));
+        $('#egroup').val($(obj).data("group"));
+        $('#etitle').val($(obj).data("titleid"));
+        $('#editUserModal').modal("show");
+    }
+    function delUser(obj){
+        if(confirm("删除确认")){
+            var userid = $(obj).data("userid");
+            $.post(
+                "{% url 'ops:delUser' %}",
+                {userid:userid},
+                function(result) {
+                    showMsgModal(result.msg, result.msgLevel);
+                    loadUserDiv();
+                },
+                'json'
+            );
+        }
+    }
+    function resetPw(obj){
+        if(confirm("是否重置密码为123456")){
+            var userid = $(obj).data("userid");
+            $.post(
+                "{% url 'ops:resetPw' %}",
+                {userid:userid},
+                function(result) {
+                    showMsgModal(result.msg, result.msgLevel);
+                    var pagenum = 'page='+$('#pagenum').val();
+                    var searchForm = $('#searchUserForm').serialize();
+                    var arr = new Array(2);
+                    arr[0] = pagenum;
+                    arr[1] = searchForm;
+                    data = arr.join("&");
+                    loadUserDiv(data);
+                },
+                'json'
+            );
+        }
+    }
+    function chargebackSerial(obj){
+        var userid = $(obj).data('userid');
+        $('#chargebackSerialDiv').load("{% url 'ops:chargebackSerial' %}?userid="+userid);
+        $('#chargebackSerialModal').modal('show');
+    }
+    </script>
+    <br/>
+    <br/>
+    <form id="searchUserForm" method="POST" class="form-horizontal ">
+        <div class="form-group">
+            <label class="col-md-1 control-label">公司</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ company }}" name="company"/>
+            </div>
+            <label class="col-md-1 control-label">部门</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ department }}" name="department"/>
+            </div>
+            <label class="col-md-1 control-label">职位</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ title }}" name="title"/>
+            </div>
+            <label class="col-md-1 control-label"></label>
+            <div class="col-md-2">
+                    <lable class="btn btn-sm btn-success" data-toggle="modal" data-target="#addUserModal">新增用户</lable>
+            </div>
+
+        </div>
+        <div class="form-group">
+            <label class="col-md-1 control-label">用户ID</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ username }}" name="username"/>
+            </div>
+            <label class="col-md-1 control-label">姓名</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ nick }}" name="nick"/>
+            </div>
+            <label class="col-md-1 control-label">身份证</label>
+            <div class="col-md-2 form-inline">
+                 <input type="text" class="form-control" value="{{ cid }}" name="cid"/>
+            </div>
+            <label class="col-md-1 control-label"></label>
+            <div class="col-md-2">
+                    <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
+            </div>
+        </div>
+    </form>
+    <div id="userDiv"></div>
+{% endblock %}

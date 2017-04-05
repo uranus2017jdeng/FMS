@@ -1,0 +1,403 @@
+{% extends 'base_full_noheader.html' %}
+
+{% block title %}开发QQ管理{% endblock %}
+{% block content %}
+
+    <div class="modal fade" id="addQqModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">开发QQ管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="addQqForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="id" name="id"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="qqid">qq</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="qqid" name="qqid"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="不允许为空"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="company" >所属公司</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="company" name="company"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="password" >密码</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="password" name="password"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="protect" >密保</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="protect" name="protect"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="qqname" >qq昵称</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="qqname" name="qqname"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="bindsale" >绑定开发</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="bindsale" name="bindsale" style="font-size: small" placeholder="请输入开发ID，格式A01101"/>
+{#                                <select type="select" class="form-control" id="bindsale" name="bindsale">#}
+{#                                    <option>无</option>#}
+{#                                    {% if bindsales %}#}
+{#                                        {% for bindsale in bindsales %}#}
+{#                                            <option value="{{ bindsale.id }}"> {{ bindsale.saleId }} {{ bindsale.binduser.userprofile.nick }}</option>#}
+{#                                        {% endfor %}#}
+{#                                    {% endif %}#}
+{#                                </select>#}
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="addQqBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="delQqModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">失效QQ</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="delQqForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="dqid" name="dqid"/>
+                            <label class="col-md-offset-2 col-md-2 control-label" for="reason" >删除原因</label>
+                            <div class="col-md-5">
+                                <select type="select" class="form-control" id="reason" name="reason">
+                                    <option value="号码被封">号码被封</option>
+                                    <option value="密码失效">密码失效</option>
+                                    <option value="其他">其他</option>
+                                </select>
+
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="delQqBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="editQqFriendModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">QQ好友数管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="editQqFriendForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="eqid" name="eqid"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="friend">好友数</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="friend" name="friend"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="不允许为空"/>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="editQqFriendBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal fade" id="qqFriendSerialModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content" style="width: 900px;">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">最近三十天好友数趋势图</h4>
+                </div>
+
+                <div class="modal-body" >
+                    <div id="qqFriendSerialDiv" style="width: 900px;height:400px;"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="text/javascript">
+    $(function () {
+        formValidator();
+        loadQqDiv();
+        $('#addQqModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+        $('#delQqModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+        $('#editQqFriendModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+    });
+    function resetFormValidator(){
+        var qqFormSelector = $('#addQqForm');
+        qqFormSelector.find(':input').not('#company').val("");
+        qqFormSelector.data('bootstrapValidator').destroy();
+        var editQqFriendFormSelector = $('#editQqFriendForm');
+        editQqFriendFormSelector.find('input').val("");
+        editQqFriendFormSelector.data('bootstrapValidator').destroy();
+        $('#delQqForm').data('bootstrapValidator').destroy();
+        $('#searchQqForm').data('bootstrapValidator').destroy();
+        formValidator();
+    }
+    function loadQqDiv(data){
+        $('#qqDiv').load("{% url 'wxqq:queryQq' %}", data);
+    }
+    function formValidator(){
+        $('#addQqForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                qqid: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入qq'
+                        }
+                    }
+                },
+                qqname: {
+                    validators: {
+                        notEmpty: {
+                            message: '请输入qq昵称'
+                        }
+                    }
+                },
+            },
+            submitHandler: function (validator, form, submitButton) {
+                var searchData = $('#searchQqForm').serialize();
+                var pageData = 'page='+$('#page').val();
+                var arr = new Array(2);
+                arr[0] = pageData;
+                arr[1] = searchData;
+                var data = arr.join('&');
+                $('#addQqModal').modal('hide');
+                $.post(
+                    "{% url 'wxqq:addQq' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        loadQqDiv(data);
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#delQqForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                reason: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                }
+            },
+            submitHandler: function (validator, form, submitButton) {
+                var searchData = $('#searchQqForm').serialize();
+                var pageData = 'page='+$('#page').val();
+                var arr = new Array(2);
+                arr[0] = pageData;
+                arr[1] = searchData;
+                var data = arr.join('&');
+                $('#delWxModal').modal('hide');
+                $('#delQqModal').modal('hide');
+                $.post(
+                    "{% url 'wxqq:delQq' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        loadQqDiv(data);
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#editQqFriendForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                friend: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                }
+            },
+            submitHandler: function (validator, form, submitButton) {
+                var searchData = $('#searchQqForm').serialize();
+                var pageData = 'page='+$('#page').val();
+                var arr = new Array(2);
+                arr[0] = pageData;
+                arr[1] = searchData;
+                var data = arr.join('&');
+                $('#delWxModal').modal('hide');
+                $('#editQqFriendModal').modal('hide');
+                $.post(
+                    "{% url 'wxqq:editQqFriend' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        loadQqDiv(data);
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#searchQqForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+            },
+            submitHandler: function (validator, form, submitButton) {
+                loadQqDiv(form.serialize());
+                resetFormValidator()
+            }
+        });
+    }
+    function editQq(obj){
+        $('#id').val($(obj).data("id"));
+        $('#company').val($(obj).data("company"));
+        $('#password').val($(obj).data("password"));
+        $('#protect').val($(obj).data("protect"));
+        $('#qqid').val($(obj).data("qqid"));
+        $('#qqname').val($(obj).data("qqname"));
+        $('#bindsale').val($(obj).data("bindsale"));
+        $('#addQqModal').modal("show");
+    }
+    function editQqFriend(obj){
+        $('#eqid').val($(obj).data("id"));
+        $('#editQqFriendModal').modal("show");
+    }
+    function qqFriendSerial(obj){
+        var id = $(obj).data('id');
+        $('#qqFriendSerialDiv').load("{% url 'wxqq:qqFriendSerial' %}?id="+id);
+        $('#qqFriendSerialModal').modal('show');
+    }
+    function delQq(obj){
+        $('#dqid').val($(obj).data("id"));
+        $('#delQqModal').modal("show");
+    }
+    function resetQq(obj){
+        if(confirm("确定恢复使用？"))
+        var id = $(obj).data("id");
+        $.post(
+            "{% url 'wxqq:resetQq' %}",
+            {id:id},
+            function(result) {
+                showMsgModal(result.msg, result.msgLevel);
+                loadQqDiv();
+            },
+            'json'
+        );
+    }
+    </script>
+    <br/>
+    <br/>
+    {% if request.user.userprofile.title.role_name != 'sale' %}
+    <form id="searchQqForm" method="POST" class="form-horizontal ">
+        <div class="form-group">
+            <label class="col-md-1 control-label">qq</label>
+            <div class="col-md-2">
+                 <input type="text" class="form-control" value="{{ qqid }}" name="qqid"/>
+            </div>
+            <label class="col-md-1 control-label">qq昵称</label>
+            <div class="col-md-2">
+                 <input type="text" class="form-control" value="{{ qqname }}" name="qqname"/>
+            </div>
+            <label class="col-md-1 control-label">绑定开发</label>
+            <div class="col-md-2">
+                 <input type="text" class="form-control" value="{{ bindsale }}" name="bindsale"/>
+            </div>
+            <label class="col-md-1 control-label" style="width:70px">失效</label>
+            <div class="col-md-2 ">
+                 <select type="select" class="form-control" id="delete" name="delete">
+                     <option></option>
+                     <option value="1">是</option>
+                     <option value="0">否</option>
+                 </select>
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="col-md-1 control-label"></label>
+            <div class="col-md-1">
+                    <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
+            </div>
+            {% if request.user.userprofile.title.role_name in "saleboss admin ops" %}
+            <div class="col-md-2">
+                    <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addQqModal">新增qq</button>
+            </div>
+                {% endif %}
+
+        </div>
+    </form>
+    {% endif %}
+    <div id="qqDiv"></div>
+{% endblock %}

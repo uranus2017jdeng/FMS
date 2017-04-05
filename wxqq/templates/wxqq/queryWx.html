@@ -1,0 +1,128 @@
+<table class="table table-bordered col-md-12 table-hover">
+    <thead class="bg-info">
+        <tr>
+{#            <td>ID</td>#}
+            <td>序号</td>
+            <td>所属公司</td>
+            <td>微信ID</td>
+{#            <td>微信密码</td>#}
+            <td>昵称</td>
+            <td>绑定详情</td>
+{#            <td>绑定手机</td>#}
+{#            <td>绑定邮箱</td>#}
+{#            <td>绑定QQ</td>#}
+            <td>绑定用户</td>
+            <td>当前好友</td>
+            <td>创建时间</td>
+            <td>失效时间</td>
+{#            <td>失效原因</td>#}
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% if wxPage %}
+    {% for wxObj in wxPage %}
+        <tr>
+{#            <td>{{ wxObj.id }}</td>#}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ wxObj.company }}</td>
+            <td>{% if wxObj.delete %}
+                <span title="已失效" class="glyphicon glyphicon-remove-sign"></span>
+                {% endif %}{{ wxObj.wxid }}</td>
+{#            <td>{{ wxObj.password }}</td>#}
+            <td>{{ wxObj.wxname }}</td>
+            <td>
+                {% if wxObj.bindqq %}
+                <p>QQ:{{ wxObj.bindqq }}</p>
+                {% endif %}
+                {% if wxObj.bindphone %}
+                <p>手机:{{ wxObj.bindphone }}</p>
+                {% endif %}
+                {% if wxObj.bindemail %}
+                <p>邮箱:{{ wxObj.bindemail }}</p>
+                {% endif %}
+            </td>
+{#            <td>{{ wxObj.bindphone }}</td>#}
+{#            <td>{{ wxObj.bindemail }}</td>#}
+{#            <td>{{ wxObj.bindqq }}</td>#}
+
+            <td ><span class="tooltips" data-toggle="tooltip" title="用户ID:{{ wxObj.bindsale.id }}">{{ wxObj.bindsale.saleId }} {{ wxObj.bindsale.binduser.userprofile.nick }}</span></td>
+            <script type="text/javascript">
+                $('.tooltips').tooltip();
+            </script>
+            <td>{{ wxObj.friend }}</td>
+            <td>{{ wxObj.create }}</td>
+            <td>{% if wxObj.delete %}{{ wxObj.delete }}{% endif %}</td>
+{#            <td>{{ wxObj.reason }}</td>#}
+            <td>
+                <button type="button" class="btn btn-sm btn-primary" id="wxFriendSerialButton" onclick="wxFriendSerial(this)"
+                    data-id="{{ wxObj.id }}">好友趋势</button>
+                {% if not wxObj.delete %}
+
+                <button type="button" class="btn btn-sm btn-primary" id="editWxFriendButton_{{ wxObj.id }}" onclick="editWxFriend(this)"
+                    data-id="{{ wxObj.id }}"
+                    data-page="{{ wxPage.number }}"
+                >好友管理</button>
+                <script type="text/javascript">
+                    var today = new Date();
+                    var year = today.getFullYear();
+                    var month = today.getMonth()+1;
+                    var day = today.getDate();
+                    var todayDate = year +"年"+ month +"月"+ day +"日";
+                    console.log(todayDate)
+                    console.log("{{ wxObj.modify }}")
+                    if("{{ wxObj.modify }}" == todayDate ){
+                        var buttonSelector = $('#editWxFriendButton_{{ wxObj.id }}');
+                        buttonSelector.attr('disabled', true);
+                        buttonSelector.attr('title', "今日已经录入过");
+                    }
+                </script>
+                {% endif %}
+                {% if  request.user.userprofile.title.role_name not in 'salemanager' and not wxObj.delete %}
+                <button type="button" class="btn btn-sm btn-primary" onclick="editWx(this)"
+                    data-id="{{ wxObj.id }}"
+                    data-page="{{ wxPage.number }}"
+                    data-company="{{ wxObj.company }}"
+                    data-password="{{ wxObj.password }}"
+                    data-wxid="{{ wxObj.wxid }}"
+                    data-wxname="{{ wxObj.wxname }}"
+                    data-bindsale="{{ wxObj.bindsale.saleId }}"
+                    data-bindphone="{{ wxObj.bindphone }}"
+                    data-bindemail="{{ wxObj.bindemail }}"
+                    data-bindqq="{{ wxObj.bindqq }}"
+                >编辑</button>
+                    <button type="button" class="btn btn-sm btn-danger" onclick="delWx(this)"
+                        data-page="{{ wxPage.number }}"
+                        data-id="{{ wxObj.id }}">标记失效</button>
+                {% endif %}
+                {% if  request.user.userprofile.title.role_name not in 'salemanager' and wxObj.delete %}
+                    <button type="button" class="btn btn-sm btn-danger" onclick="resetWx(this)"
+                        data-page="{{ wxPage.number }}"
+                        data-id="{{ wxObj.id }}">恢复使用</button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% else %}
+         <tr><td colspan="13">无开发微信信息</td></tr>
+    {% endif %}
+    </tbody>
+</table>
+<nav class="navbar-right">
+  <ul class="pagination">
+    <input type="hidden" value="{{ wxPage.number }}" id="page" />
+    <li>
+        {% if wxPage.has_previous %}
+            <span aria-hidden="true" onclick="loadWxDiv('page={{ wxPage.previous_page_number }}&{{ requestArgs }}')">&laquo;</span>
+        {% endif %}
+    </li>
+    <li><span class="current">
+           第{{ wxPage.number }}/{{ wxPage.paginator.num_pages }}页
+        </span></li>
+    <li>
+        {% if wxPage.has_next %}
+            <span aria-hidden="true" onclick="loadWxDiv('page={{ wxPage.next_page_number }}&{{ requestArgs }}')">&raquo;</span>
+        {% endif %}
+    </li>
+  </ul>
+</nav>

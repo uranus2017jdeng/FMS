@@ -1,0 +1,101 @@
+{% extends 'base_full_noheader.html' %}
+{% load spot_tags %}
+{% block title %}现货交易管理{% endblock %}
+{% block content %}
+<br/>
+<h1>
+    <div class="alert alert-success" style="text-align:center">
+        现货汇总表
+    </div>
+</h1>
+<hr/>
+<form id="searchKpiForm" method="POST" class="form-horizontal " action="#">
+    <div class="form-group">
+        <label class="col-md-offset-2 col-md-1 control-label">时间范围</label>
+        <div class="col-md-2 ">
+             <input type="date"  class="form-control datetime" value="{{ startDate }}" name="startDate" id="startDate"
+             title="起始时间"/>
+        </div>
+        <label class="col-md-1 control-label"></label>
+        <div class="col-md-2 ">
+             <input type="date"  class="form-control datetime" value="{{ endDate }}" name="endDate" id="endDate"
+             title="结束时间"/>
+        </div>
+{#        <label class="col-md-1 control-label"></label>#}
+        <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
+        </div>
+    </div>
+</form>
+<table class="table table-bordered">
+    <thead class="bg-info">
+        <th width="2%">序号</th>
+        <th width="2%">现货专员</th>
+{#        <th width="2%">ID</th>#}
+{#        <th width="2%">现货老师姓名</th>#}
+        <th width="5%">客户（个）</th>
+        <th width="5%">首次入金</th>
+        <th width="5%">出金</th>
+        <th width="5%">入金</th>
+{#        <th width="5%">净入金总和</th>#}
+        <th width="5%">盈亏</th>
+        <th width="5%">手续费</th>
+        <th width="5%">剩余资金</th>
+    </thead>
+    <tbody>
+        {% for spotTeacher in spotTeachers %}
+        <tr class="spot_teacher_row" id="spot_teacher_row_{{ spotTeacher.id }}" ondblclick="showSpotTeacherDetailRow(this)"\
+            data-stid="{{ spotTeacher.id }}">
+            <td>{{ forloop.counter }}</td>
+            <td>{{ spotTeacher.teacherId }} {{ spotTeacher.binduser.userprofile.nick }}</td>
+{#            <td>{{ spotTeacher.teacherId }}</td>#}
+{#            <td>{{ spotTeacher.binduser.userprofile.nick }}</td>#}
+            <td>{% getCustomerCountBySpotTeacher spotTeacher.id startDate endDate %}</td>
+            <td style="color:red">{% getFirstCashTotalBySpotTeacher spotTeacher.id startDate endDate %}</td>
+            <td style="color:greenyellow">{% getOutCashTotalBySpotTeacher spotTeacher.id startDate endDate %}</td>
+            <td style="color:red">{% getInCashTotalBySpotTeacher spotTeacher.id startDate endDate %}</td>
+{#            <td>{% getCashTotalBySpotTeacher spotTeacher.id %}</td>#}
+            <td style="color:{% getProfitTotalColorBySpotTeacher spotTeacher.id startDate endDate %}" >{% getProfitTotalBySpotTeacher spotTeacher.id startDate endDate %}</td>
+            <td style="color:greenyellow">{% getTaxTotalBySpotTeacher spotTeacher.id startDate endDate %}</td>
+            <td style="color:{% getSpotTotalColorBySpotTeacher spotTeacher.id startDate endDate %}">{% getSpotTotalBySpotTeacher spotTeacher.id startDate endDate%}</td>
+        </tr>
+        <tr style="padding:0;"><td colspan="9" style="padding:0;">
+            <div id="spot_teacher_detail_row_{{ spotTeacher.id }}" class="spot_teacher_detail_row" style="margin-left:50px;margin-top:5px;display:none;"></div>
+        </td></tr>
+        {% empty %}
+        <tr><td colspan="8">无现货老师信息</td></tr>
+        {% endfor %}
+    </tbody>
+</table>
+<script type="text/javascript">
+    function showSpotTeacherDetailRow(obj){
+        $('.spot_teacher_detail_row').slideUp();
+        var spotTeacherId = $(obj).data('stid');
+        var spotTeacherDetailRowSelector = $('#spot_teacher_detail_row_'+spotTeacherId);
+        if(spotTeacherDetailRowSelector.is(':hidden')){
+            spotTeacherDetailRowSelector.slideDown();
+            loadSpotTeacherDetail(spotTeacherId);
+        }else{
+            spotTeacherDetailRowSelector.slideUp();
+        }
+    }
+    function loadSpotTeacherDetail(spotTeacherId) {
+        spotTeacherDetailRowSelector = $('#spot_teacher_detail_row_'+spotTeacherId);
+        var startDate = $('#startDate').val();
+        var endDate = $('#endDate').val();
+        $.ajax({
+            url: "{% url 'spot:getSpotTeacherDetail' %}",
+            type: 'POST',
+            async: true,
+            data: { "spotteacherid": spotTeacherId, "startDate": startDate, "endDate": endDate},
+            beforeSend:  function(){
+                spotTeacherDetailRowSelector.html('<img src="/static/assets/img/loading.gif">')
+            },
+            success: function (data) {
+                spotTeacherDetailRowSelector.html(data);
+            }
+        });
+    }
+</script>
+
+{% endblock %}

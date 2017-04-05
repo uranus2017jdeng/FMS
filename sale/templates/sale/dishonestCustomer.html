@@ -1,0 +1,88 @@
+{% extends 'base_full_noheader.html' %}
+
+{% block title %}不诚信客户汇总表{% endblock %}
+{% block content %}
+    <br/>
+    <h1>
+        <div class="alert alert-success" style="text-align:center">
+
+            {% if request.user.userprofile.title.role_name == 'saleboss' %}
+                {{ request.user.userprofile.company }}公司不诚信客户
+            {% else %}
+                不诚信客户汇总表
+            {% endif %}
+        </div>
+    </h1>
+    <form id="searchAnalyzeForm" method="POST" class="form-horizontal" >
+    <div class="form-group">
+        <label class="col-md-1 control-label">客户电话</label>
+        <div class="col-md-1 ">
+             <input type="text"  class="form-control" id="phone" value="{{ phone }}" name="phone"
+             title="起始时间"/>
+        </div>
+        <label class="col-md-1 control-label">沟通方式</label>
+        <div class="col-md-1 ">
+             <input type="text"  class="form-control" id="wxqq" value="{{ wxqq }}" name="wxqq"
+             title="起始时间"/>
+        </div>
+        <label class="col-md-1 control-label">标记时间</label>
+        <div class="col-md-2 ">
+             <input type="date"  class="form-control datetime" id="startDate"  value="{{ startDate }}" name="startDate"
+             title="起始时间"/>
+        </div>
+{#        <label class="col-md-1 control-label"></label>#}
+        <div class="col-md-2 ">
+             <input type="date"  class="form-control datetime"  id="endDate" value="{{ endDate }}" name="endDate"
+             title="结束时间"/>
+        </div>
+        <label class="col-md-1 control-label"></label>
+        <div class="col-md-2">
+                <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
+        </div>
+    </div>
+</form>
+<div id="dishonestCustomerDiv" style="padding: 0px"></div>
+
+<script type="text/javascript">
+    $(function () {
+        formValidator();
+        loadDishonestCustomerDiv();
+    });
+    function formValidator(){
+        $('#searchAnalyzeForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+            },
+            submitHandler: function (validator, form, submitButton) {
+                loadDishonestCustomerDiv(form.serialize());
+                resetFormValidator();
+            }
+        });
+    }
+
+    function resetFormValidator(){
+        $('#searchAnalyzeForm').data('bootstrapValidator').destroy();
+        formValidator();
+    }
+
+    function loadDishonestCustomerDiv(data){
+        var startDate = $('#startDate').val();
+        var endDate = $('#endDate').val();
+        var phone = $('#phone').val();
+        var wxqq = $('#wxqq').val;
+        if(data){
+            data = data +'&startDate='+startDate+'&endDate='+endDate+'&phone='+phone+'&wxqq'+wxqq;
+        }else{
+            data = 'startDate='+startDate+'&endDate='+endDate+'&phone='+phone+'&wxqq'+wxqq;
+        }
+        $('#dishonestCustomerDiv').load("{% url 'sale:queryDishonestCustomer' %}", data);
+    }
+
+</script>
+{% endblock %}

@@ -1,0 +1,106 @@
+{#<h1 id="saleHead" name="saleHead" style="text-align:center;">请输入搜索条件</h1>#}
+<table id="saleTable" class="table table-bordered col-md-12 table-hover">
+    <thead class="bg-info">
+        <tr>
+{#            <td>ID</td>#}
+            <td>开发ID</td>
+            <td>公司</td>
+            <td>部门</td>
+            <td>组</td>
+            <td>用户名</td>
+            <td>对接老师</td>
+            <td>对接财务</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% if salePage %}
+    {% for saleObj in salePage %}
+        <tr>
+            <td>{{ saleObj.saleId }}</td>
+            <td>{{ saleObj.company }}</td>
+            <td>{{ saleObj.department }}</td>
+            <td>{{ saleObj.group }}</td>
+            <td >
+                {% if saleObj.binduser %}
+                    <span class="tooltips" data-toggle="tooltip" title="用户ID:{{ saleObj.binduser.username }}">{{ saleObj.binduser.userprofile.nick }}</span>
+                {% else %}
+                    无
+                {% endif %}
+            </td>
+            <td >
+                {% if saleObj.bindteacher %}
+                    <span class="tooltips" data-toggle="tooltip" title="老师用户ID:{{ saleObj.bindteacher.binduser.userprofile.nick }}">{{ saleObj.bindteacher.teacherId }} {{ saleObj.bindteacher.binduser.userprofile.nick }}</span>
+                {% else %}
+                    无
+                {% endif %}
+            </td>
+            <td >
+                {% if saleObj.bindteacher and saleObj.bindteacher.bindbursar %}
+                    <span class="tooltips" data-toggle="tooltip" title="财务用ID:{{ saleObj.bindteacher.bindbursar.binduser.userprofile.nick }}">{{ saleObj.bindteacher.bindbursar.bursarId }} {{ saleObj.bindteacher.bindbursar.binduser.userprofile.nick }}</span>
+                {% else %}
+                    无
+                {% endif %}
+            </td>
+            <script type="text/javascript">
+                $('.tooltips').tooltip();
+            </script>
+            <td>
+                <button type="button" class="btn btn-sm btn-primary" onclick="editSale(this)"
+                    data-id="{{ saleObj.id }}"
+                    data-page="{{ salePage.number }}"
+                    data-saleid="{{ saleObj.saleId }}"
+                    data-company="{{ saleObj.company }}"
+                    data-department="{{ saleObj.department }}"
+                    data-bindusername="{{ saleObj.binduser.username }}"
+                    data-bindteacherid="{{ saleObj.bindteacher.teacherId }}"
+                >编辑</button>
+                {% if request.user.userprofile.title.role_name in 'admin ops' %}
+                <button type="button" class="btn btn-sm btn-danger" onclick="delSale(this)"
+                    data-id="{{ saleObj.id }}">删除</button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% else %}
+         <tr><td colspan="8">无开发人员信息</td></tr>
+    {% endif %}
+    </tbody>
+</table>
+<nav id="saleNav" class="navbar-right">
+  <ul class="pagination">
+    <li>
+        {% if salePage.has_previous %}
+            <span aria-hidden="true" onclick="loadSaleDiv('page={{ salePage.previous_page_number }}&{{ requestArgs }}')">&laquo;</span>
+        {% endif %}
+    </li>
+    <li><span class="current">
+           第{{ salePage.number }}/{{ salePage.paginator.num_pages }}页
+        </span></li>
+    <li>
+        {% if salePage.has_next %}
+            <span aria-hidden="true" onclick="loadSaleDiv('page={{ salePage.next_page_number }}&{{ requestArgs }}')">&raquo;</span>
+        {% endif %}
+    </li>
+  </ul>
+</nav>
+
+{#<script type="text/javascript">#}
+{#    $(function () {#}
+{#        contentShow();#}
+{#    });#}
+{##}
+{#    function contentShow() {#}
+{#        var showContent = '{{ showContent | safe }}';#}
+{#        if( showContent == 'True'){#}
+{#            $('#saleHead').css("display","none");#}
+{#            $('#saleTable')[0].style.display='';#}
+{#            $('#saleNav')[0].style.display='';#}
+{#        }#}
+{#        else{#}
+{#            $('#saleHead')[0].style.display='display';#}
+{#            $('#saleTable')[0].style.display='none';#}
+{#            $('#saleNav')[0].style.display='none';#}
+{#        }#}
+{#    }#}
+{#</script>#}

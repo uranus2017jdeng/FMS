@@ -1,0 +1,101 @@
+# coding=utf-8
+from django import template
+from django.template.defaultfilters import stringfilter
+from django.db.models import Sum
+from customer.models import *
+from trade.models import *
+import traceback
+register = template.Library()
+
+@register.simple_tag
+def getLowBuypriceByStockAndUser(stockid, userid, startDate, endDate):
+    try:
+        user = User.objects.get(id=userid)
+        trades = Trade.objects.filter(status=0, stock_id=stockid, create__gte=startDate, create__lte=endDate)
+        if user.userprofile.title.role_name == 'teachermanager':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company,
+                                   customer__teacher__department=user.userprofile.department)
+        elif user.userprofile.title.role_name == 'teacherboss':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company)
+        else:
+            trades = trades
+        trade = trades.earliest('buyprice')
+        return trade.buyprice
+    except Exception as e:
+        traceback.print_exc()
+        return 0
+
+@register.simple_tag
+def getHighBuypriceByStockAndUser(stockid, userid, startDate, endDate):
+    try:
+        user = User.objects.get(id=userid)
+        trades = Trade.objects.filter(status=0, stock_id=stockid, create__gte=startDate, create__lte=endDate)
+        if user.userprofile.title.role_name == 'teachermanager':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company,
+                                   customer__teacher__department=user.userprofile.department)
+        elif user.userprofile.title.role_name == 'teacherboss':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company)
+        else:
+            trades = trades
+        trade = trades.latest('buyprice')
+        return trade.buyprice
+    except Exception as e:
+        print(e.__str__())
+        return 0
+
+@register.simple_tag
+def getBuyCashTotalByStockAndUser(stockid, userid, startDate, endDate):
+    try:
+        user = User.objects.get(id=userid)
+        trades = Trade.objects.filter(status=0, stock_id=stockid, create__gte=startDate, create__lte=endDate)
+        if user.userprofile.title.role_name == 'teachermanager':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company,
+                                   customer__teacher__department=user.userprofile.department)
+        elif user.userprofile.title.role_name == 'teacherboss':
+            trades = trades.filter(customer__teacher__company=user.userprofile.company)
+        else:
+            trades = trades
+        cashTotal = trades.aggregate(Sum('buycash'))
+        if cashTotal['buycash__sum']:
+            return cashTotal['buycash__sum']
+        else:
+            return 0
+    except Exception as e:
+        print(e.__str__())
+        return 0
+
+@register.simple_tag
+def getCustomerCountByStockAndUser(stockid, userid, startDate, endDate):
+    try:
+        user = User.objects.get(id=userid)
+        customers = Customer.objects.filter(trade__stock_id=stockid, trade__status=0, create__gte=startDate, create__lte=endDate)
+        if user.userprofile.title.role_name == 'teachermanager':
+            customers = customers.filter(teacher__company=user.userprofile.company,
+                                   teacher__department=user.userprofile.department)
+        elif user.userprofile.title.role_name == 'teacherboss':
+            customers = customers.filter(teacher__company=user.userprofile.company)
+        else:
+            customers = customers
+        customers = customers.distinct()
+        return customers.__len__()
+    except Exception as e:
+        print(e.__str__())
+        return 0
+
+@register.simple_tag()
+def getTradeTotalByStockAndUser(stockid, userid, startDate, endDate):
+    try:
+        user = User.objects.get(id=userid)
+        trades = Trade.objects.filter(stock_id=stockid,status=0,create__gte=startDate,create__lte=endDate)
+
+        #按用户权限筛选
+        if user.userprofile.title.role_name == 'teachermanager':
+            trades = trades.filter(realteacheruser__teacher__group=user.userprofile.group)
+        if user.userprofile.title.role_name == 'teacherboss':
+            trades = trades.filter(realteacheruser__teacher__company=user.userprofile.company)
+        return trades.count()
+    except Exception as e:
+        print(e.__str__())
+        return 0
+
+

@@ -1,0 +1,104 @@
+<table class="table table-bordered col-md-12 table-hover">
+    <thead class="bg-info">
+        <tr>
+{#            <td>ID</td>#}
+            <td>序号</td>
+            <td>所属公司</td>
+            <td>QQ</td>
+{#            <td>QQ密码</td>#}
+{#            <td>密保</td>#}
+            <td>昵称</td>
+            <td>绑定用户</td>
+            <td>当前好友</td>
+            <td>创建时间</td>
+            <td>失效时间</td>
+{#            <td>失效原因</td>#}
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% if qqPage %}
+    {% for qqObj in qqPage %}
+        <tr>
+{#            <td>{{ qqObj.id }}</td>#}
+            <td>{{ forloop.counter }}</td>
+            <td>{{ qqObj.company }}</td>
+            <td>{% if qqObj.delete %}
+                <span title="已失效" class="glyphicon glyphicon-remove-sign"></span>
+                {% endif %}{{ qqObj.qqid }}</td>
+
+{#            <td>{{ qqObj.password }}</td>#}
+{#            <td>{{ qqObj.protect }}</td>#}
+            <td>{{ qqObj.qqname }}</td>
+            <td ><span class="tooltips" data-toggle="tooltip" title="用户ID:{{ qqObj.bindsale.id }}">{{ qqObj.bindsale.saleId }} {{ qqObj.bindsale.binduser.userprofile.nick }}</span></td>
+            <script type="text/javascript">
+                $('.tooltips').tooltip();
+            </script>
+             <td>{{ qqObj.friend }}</td>
+             <td>{{ qqObj.create }}</td>
+             <td>{% if qqObj.delete %}{{ qqObj.delete }}{% endif %}</td>
+{#             <td>{{ qqObj.reason }}</td>#}
+            <td>
+                <button type="button" class="btn btn-sm btn-primary" id="qqFriendSerialButton" onclick="qqFriendSerial(this)"
+                    data-id="{{ qqObj.id }}">好友趋势</button>
+                {% if not qqObj.delete %}
+
+                <button type="button" class="btn btn-sm btn-primary" id="editQqFriendButton_{{ qqObj.id }}" onclick="editQqFriend(this)"
+                    data-id="{{ qqObj.id }}">好友管理</button>
+                <script type="text/javascript">
+                    var today = new Date();
+                    var year = today.getFullYear();
+                    var month = today.getMonth()+1;
+                    var day = today.getDate();
+                    var todayDate = year +"年"+ month +"月"+ day +"日";
+                    if("{{ qqObj.modify }}" == todayDate ){
+                        var buttonSelector = $('#editQqFriendButton_{{qqObj.id }}');
+                        buttonSelector.attr('disabled', true);
+                        buttonSelector.attr('title', "今日已经录入过");
+                    }
+                </script>
+                {% endif %}
+                {% if request.user.userprofile.title.role_name not in 'salemanager' and not qqObj.delete %}
+                <button type="button" class="btn btn-sm btn-primary" onclick="editQq(this)"
+                    data-id="{{ qqObj.id }}"
+                    data-company="{{ qqObj.company }}"
+                    data-password="{{ qqObj.password }}"
+                    data-protect="{{ qqObj.protect }}"
+                    data-qqid="{{ qqObj.qqid }}"
+                    data-qqname="{{ qqObj.qqname }}"
+                    data-bindsale="{{ qqObj.bindsale.saleId }}"
+                >编辑</button>
+
+                <button type="button" class="btn btn-sm btn-danger" onclick="delQq(this)"
+                    data-id="{{ qqObj.id }}">标记失效</button>
+                {% endif %}
+                {% if request.user.userprofile.title.role_name != 'sale' and qqObj.delete %}
+                    <button type="button" class="btn btn-sm btn-danger" onclick="resetQq(this)"
+                        data-id="{{ qqObj.id }}">恢复使用</button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% else %}
+         <tr><td colspan="11">无开发QQ信息</td></tr>
+    {% endif %}
+    </tbody>
+</table>
+<nav class="navbar-right">
+  <ul class="pagination">
+    <input type="hidden" value="{{ qqPage.number }}" id="page" />
+    <li>
+        {% if qqPage.has_previous %}
+            <span aria-hidden="true" onclick="loadQqDiv('page={{ qqPage.previous_page_number }}&{{ requestArgs }}')">&laquo;</span>
+        {% endif %}
+    </li>
+    <li><span class="current">
+           第{{ qqPage.number }}/{{ qqPage.paginator.num_pages }}页
+        </span></li>
+    <li>
+        {% if qqPage.has_next %}
+            <span aria-hidden="true" onclick="loadQqDiv('page={{ qqPage.next_page_number }}&{{ requestArgs }}')">&raquo;</span>
+        {% endif %}
+    </li>
+  </ul>
+</nav>
