@@ -1,0 +1,754 @@
+{% extends 'base_nobar.html' %}
+{% block title %}交易管理{% endblock %}
+{% block content %}
+<div class="modal fade" id="addTradeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">交易管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="addTradeForm" method="post" class="form-horizontal" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="hidden" value="{{ customer.id }}" class="" id="customerid" name="customerid"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="stockid">产品代码</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="stockid" name="stockid"
+                                data-bv-notempty="true"
+                                data-bv-notempty-message="不允许为空"/>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            $('#stockid').change(function(){
+                                $.ajax({
+                                    url: "{% url 'trade:getNameByStockId' %}",
+                                    type: "POST",
+                                    data: {"stockid": $('#stockid').val()},
+                                    success: function(data){
+                                        $('#stockname').val(data);
+                                    }
+                                })
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="stockname" >产品名称</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="stockname" name="stockname"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="buyprice" >买入价格</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="buyprice" name="buyprice"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="buycount" >买入数量</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="buycount" name="buycount"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="share" >佣金</label>
+                            <div class="col-md-5">
+                                <select type="select" class="form-control" id="share" name="share">
+                                    <option value="5|5" selected>5|5</option>
+                                    <option value="1|9">1|9</option>
+                                    <option value="2|8">2|8</option>
+                                    <option value="3|7">3|7</option>
+                                    <option value="4|6">4|6</option>
+                                    <option value="5|5" selected>5|5</option>
+                                    <option value="6|4">6|4</option>
+                                    <option value="7|3">7|3</option>
+                                    <option value="8|2">8|2</option>
+                                    <option value="9|1">9|1</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="file">交割单据</label>
+                            <div class="form-inline col-md-4" >
+                               <input name="file" id="ulfile" type="file"  class="btn btn-sm btn-default"  required/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-3" style="color: red; font-size: 10px">(温馨提示：文件大小100K以内，格式：png或jpg)</label>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="addTradeBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+ <div class="modal fade" id="updateFileModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">更新交割单</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="updateFileForm" method="post" class="form-horizontal" enctype="multipart/form-data">
+                        <div class="form-group">
+                            <input type="hidden" value=" " class="" id="tradeid" name="tradeid"/>
+                            <label class="col-md-offset-2 col-md-2 control-label" for="file">交割单据</label>
+                            <div class="form-inline col-md-4" >
+                               <input name="file" id="udfile" type="file"  class="btn btn-sm btn-default"  required/>
+                                <script type="text/javascript">
+                                     var maxsize = 100*1024;//100K
+                                     var errMsg = "上传文件超过100K,请重新上传！！！";
+                                     var tipMsg = "您的浏览器暂不支持计算上传文件的大小，确保上传文件不要超过1M，建议使用FireFox、Chrome浏览器。";
+                                     var  browserCfg = {};
+                                     var ua = window.navigator.userAgent;
+                                     if (ua.indexOf("MSIE")>=1){
+                                            browserCfg.ie = true;
+                                     }else if(ua.indexOf("Firefox")>=1){
+                                            browserCfg.firefox = true;
+                                     }else if(ua.indexOf("Chrome")>=1){
+                                            browserCfg.chrome = true;
+                                     }
+                                     function checkfile(obj){
+                                         result = false;
+                                         try{
+                                              if(obj.value==""){
+                                                alert("请先选择上传文件");
+                                                 return result;
+                                               }
+                                              var filesize = 0;
+                                              if(browserCfg.firefox || browserCfg.chrome ){
+                                                  filesize = obj.files[0].size;
+                                              }else if(browserCfg.ie){
+{#                                                  var obj_img = document.getElementById('tempimg');#}
+{#                                                  obj_img.dynsrc=obj_file.value;#}
+{#                                                  filesize = obj_img.fileSize;#}
+                                                  alert(tipMsg);
+                                                  return result;
+                                              }else{
+                                                  alert(tipMsg);
+                                                  return result;
+                                              }
+                                              if(filesize==-1){
+                                                 alert(tipMsg);
+                                                 return result;
+                                              }else if(filesize>maxsize){
+                                                  alert(errMsg);
+                                                  return result;
+                                              }else{
+{#                                                  alert("文件大小符合要求");#}
+                                                  result = true;
+                                                  return result;
+                                              }
+                                         }catch(e){
+                                                  alert(e);
+                                         }
+                                     }
+                                </script>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-3" style="color: red; font-size: 10px">(温馨提示：文件大小100K以内，格式：png或jpg)</label>
+                        </div>
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="updateFileBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+<div class="modal fade" id="handleTradeModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h4 class="modal-title">交易管理</h4>
+                </div>
+
+                <div class="modal-body">
+                    <!-- The form is placed inside the body of modal -->
+                    <form id="handleTradeForm" method="post" class="form-horizontal">
+                        <div class="form-group">
+                            <input type="hidden" value="" class="" id="htid" name="htid"/>
+                            <input type="hidden" value="{{ customer.id }}" class="" id="htcustomerid" name="htcustomerid"/>
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="htstockid">产品代码</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="text" class="form-control" id="htstockid" name="htstockid"
+                                />
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            $('#htstockid').change(function(){
+                                $.ajax({
+                                    url: "{% url 'trade:getNameByStockId' %}",
+                                    type: "POST",
+                                    data: {"stockid": $('#htstockid').val()},
+                                    success: function(data){
+                                        $('#htstockname').val(data);
+                                    }
+                                })
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htstockname" >产品名称</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htstockname" name="htstockname"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htbuyprice" >买入价格</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htbuyprice" name="htbuyprice"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htbuycount" >买入数量</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htbuycount" name="htbuycount"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htshare" >佣金</label>
+                            <div class="col-md-5">
+                                <select type="select" class="form-control" id="htshare" name="htshare" >
+                                    <option value="5|5" selected>5|5</option>
+                                    <option value="1|9">1|9</option>
+                                    <option value="2|8">2|8</option>
+                                    <option value="3|7">3|7</option>
+                                    <option value="4|6">4|6</option>
+                                    <option value="5|5" selected>5|5</option>
+                                    <option value="6|4">6|4</option>
+                                    <option value="7|3">7|3</option>
+                                    <option value="8|2">8|2</option>
+                                    <option value="9|1">9|1</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <hr/>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htsellprice" >卖出价格</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htsellprice" name="htsellprice"/>
+                            </div>
+                        </div>
+                        <script type="text/javascript">
+                            $('#htsellprice').change(function(){
+                                var sellprice = $(this).val();
+                                if(sellprice == 0){
+                                    return;
+                                }
+{#                                var income = (sellprice -  $('#htbuyprice').val()) * $('#htbuycount').val() ;#}
+                                var income = (sellprice -  $('#htbuyprice').val()) * $('#htbuycount').val() ;
+                                income = Math.round(income*100)/100;
+                                var share = $('#htshare').val().split('|')[0] / 10;
+                                $('#htincome').val(income);
+                                var commission = income * share;
+                                commission = Math.round(commission*100)/100;
+                                $('#htcommissionref').html("参考值:"+commission);
+                                $('#htcommission').val(commission);
+                                if(income > 0){
+                                    $('#htstatus').val('20');
+                                }else if(income ==0){
+                                    $('#htstatus').val('11 ');
+                                }else{
+                                    $('#htstatus').val('10');
+                                }
+                            });
+                        </script>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htincome" >盈利</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htincome" name="htincome"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-md-2 control-label" for="htcommission" >应收</label>
+                            <div class="col-md-5">
+                                <input type="text" class="form-control" id="htcommission" name="htcommission"/>
+                            </div>
+                            <span class="label label-warning control-label" id="htcommissionref"></span>
+                        </div>
+                        <hr/>
+{#--------------------------------------------------------------------------------------------------------------------#}
+                        <div class="form-group">
+                          <label class="col-md-offset-2 col-md-2 control-label" for="statustool" >状态</label>
+                          <div class="col-md-5" >
+                              <select type="select" class="form-control" id="statustool" name="statustool">
+                                  <option value="20" selected>提交财务收款</option>
+                                  <option value="other">其它</option>
+                              </select>
+                              <select id="payDiv" type="select" name="payDiv" class="form-control">
+                                  <option>请选择财务专员</option>
+                                  {% for bursarObj in bursars %}
+                                     <option value={{ bursarObj.bursarId}}>{{ bursarObj.bursarId }} {{ bursarObj.binduser.userprofile.nick }}</option>
+                                  {% endfor %}
+                              </select>
+                              <select id="otherDiv" type="select" class="form-control" name="otherDiv"  style="display: none">
+                                    <option value="0">未出货</option>
+                                    <option value="10">非正常盈收 | 下次补亏</option>
+                                    <option value="11">非正常盈收 | 客户自抛</option>
+                                    <option value="12">非正常盈收 | 客户拉黑</option>
+                                    <option value="13">非正常盈收 | 止损做现货</option>
+                                    <option value="14">非正常盈收 | 超出合作周期 </option>
+                                    <option value="15">非正常盈收 | 业务员虚假承诺 </option>
+                                    <option value="16">非正常盈收 | 少量盈利转做现货</option>
+                                    <option value="17">非正常盈收 | 少量盈利下次结算 </option>
+                                    <option value="18">非正常盈收 | 客户亏损不再合作 </option>
+                                    <option value="19">非正常盈收 | 客户急需资金提前出货 </option>
+                                    <option value="09">已补亏</option>
+                              </select>
+                          </div>
+                        </div>
+                        <script type="text/javascript">
+                            $('#statustool').on('change',function () {
+                                if($(this).val()=='20'){
+                                    $('#payDiv').show();
+                                    $('#otherDiv').hide();
+                                }else {
+                                    $('#payDiv').hide();
+                                    $('#otherDiv').show();
+                                }
+                                $('#handleCustomerForm').data('bootstrapValidator').disableSubmitButtons(false);
+                            })
+                        </script>
+{#----------------------------------------------------------------------------------------------------------------------#}
+{#                        <div class="form-group">#}
+{#                            <label class="col-md-offset-2 col-md-2 control-label" for="htstatus" >状态</label>#}
+{#                            <div class="col-md-5">#}
+{#                                <select type="select" class="form-control" id="htstatus" name="htstatus">#}
+{#                                    <option value="0">未出货</option>#}
+{#                                    <option value="20">提交财务收款</option>#}
+{#                                    <option value="10">非正常盈收 | 下次补亏</option>#}
+{#                                    <option value="11">非正常盈收 | 客户自抛</option>#}
+{#                                    <option value="12">非正常盈收 | 客户拉黑</option>#}
+{#                                    <option value="13">非正常盈收 | 止损做现货</option>#}
+{#                                    <option value="14">非正常盈收 | 超出合作周期 </option>#}
+{#                                    <option value="15">非正常盈收 | 业务员虚假承诺 </option>#}
+{#                                    <option value="16">非正常盈收 | 少量盈利转做现货</option>#}
+{#                                    <option value="17">非正常盈收 | 少量盈利下次结算 </option>#}
+{#                                    <option value="18">非正常盈收 | 客户亏损不再合作 </option>#}
+{#                                    <option value="19">非正常盈收 | 客户急需资金提前出货 </option>#}
+{#                                    <option value="09">已补亏</option>#}
+{#                                </select>#}
+{#                            </div>#}
+{#                        </div>#}
+                        <div class="modal-footer">
+                            <div class="form-group">
+                                <div class="col-md-5 col-md-offset-3">
+                                    <button id="handleTradeBtn" type="submit" class="btn btn-sm btn-primary">提交</button>
+                                </div>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+</div>
+
+<script type="text/javascript">
+    $('#addTradeModal').modal({backdrop: 'static'});
+    $('#handleTradeModal').modal({backdrop: 'static'});
+    $('#updateFileModal').modal({backdrop: 'static'});
+    $('#addTradeModal').modal('hide');
+    $('#handleTradeModal').modal('hide');
+    $('#updateFileModal').modal('hide');
+    
+    $(function () {
+        frag = document.createDocumentFragment();
+        formValidator();
+        loadTradeDiv();
+        loadCustomerDiv();
+{#        adShareSelect();#}
+{#        htShareSelect();#}
+{#        otherDivSelect();#}
+{#        payDivSelect();#}
+
+
+        $('#handleTradeModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+        $('#addTradeModal').on('hidden.bs.modal', function() {
+            resetFormValidator();
+        });
+        $('#updateFileModal').on('hidden.bs.modal',function () {
+            resetFormValidator();
+        });
+    });
+    function loadTradeDiv(data){
+        var customerId = "{{ customer.id }}";
+        data = "customerid=" + customerId + '&'+data;
+        $('#tradeDiv').load("{% url 'trade:queryTrade' %}", data);
+    }
+    function loadCustomerDiv(data){
+        var customerId = "{{ customer.id }}";
+        data = "customerid=" + customerId + '&'+data;
+        $('#customerDiv').load("{% url 'customer:getCustomerById' %}", data);
+    }
+    function updateParentWindow(){
+        window.opener.loadCustomerHandleDiv();
+    }
+    function handleTrade(obj){
+        $('#htid').val($(obj).data("htid"));
+        $('#htstockid').val($(obj).data("htstockid"));
+        $('#htstockname').val($(obj).data("htstockname"));
+        $('#htbuyprice').val($(obj).data("htbuyprice"));
+        $('#htbuycount').val($(obj).data("htbuycount"));
+        $('#htshare').val($(obj).data("htshare"));
+        $('#htsellprice').val($(obj).data("htsellprice"));
+        $('#htincome').val($(obj).data("htincome"));
+        $('#htcommission').val($(obj).data("htcommission"));
+{#        var tradeCreate = Date.parse($(obj).data("htcreate").replace("年",'/').replace("月", '/').replace("日",''));#}
+{#        var today = Date.parse( new Date().toLocaleDateString());#}
+        var tradeCreate = $(obj).data("htcreate").replace("年",'/').replace("月", '/').replace("日",'');
+        var today =  new Date().toLocaleDateString();
+        var user = $(obj).data("htusertitle");
+
+        if(today > tradeCreate && user!='admin'){
+            $('#htstockid').attr("readonly", true);
+            $('#htstockname').attr("readonly", true);
+            $('#htbuyprice').attr("readonly", true);
+            $('#htbuycount').attr("readonly", true);
+            $('#htshare').attr('readonly', true);
+        }else{
+            $('#htstockid').attr("readonly", false);
+            $('#htstockname').attr("readonly", false);
+            $('#htbuyprice').attr("readonly", false);
+            $('#htbuycount').attr("readonly", false);
+            $('#htshare').attr('readonly', false);
+        }
+        $('#handleTradeModal').modal("show");
+    }
+    function updateFile(obj){
+        $('#tradeid').val($(obj).data("udid"));
+        $('#updateFileModal').modal("show");
+    }
+    function deleteTrade(obj){
+        if(confirm("确定要删除该交易？")){
+            var tradeId = $(obj).data("dtid");
+            $.post(
+                "{% url 'trade:deleteTrade' %}",
+                {"id":tradeId},
+                function(result) {
+                    showMsgModal(result.msg, result.msgLevel);
+                    loadTradeDiv();
+                    loadCustomerDiv();
+                    updateParentWindow();
+                },
+                'json'
+            );
+
+        }
+    }
+    function formValidator(){
+        try{
+        $('#addTradeForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                stockid: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                },
+                stockname: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                },
+                buyprice: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        },
+                        lessThan: {
+                            value: 500,
+                            inclusive: true,
+                            message: '必须&le;500'
+                        }
+                    }
+                },
+                buycount: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        },
+                        greaterThan: {
+                            value: 100,
+                            inclusive: true,
+                            message: '必须&ge;100'
+                        }
+                    }
+                },
+                share: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项',
+                        },
+                    }
+                },
+{#                payDiv#}
+            },
+            submitHandler: function (validator, form, submitButton) {
+                $('#addTradeModal').modal('hide');
+                var form1 = document.getElementById('addTradeForm');
+                var inputs = form1.getElementsByTagName('input');
+                if (checkfile(inputs[5])){
+                  var formData = new FormData($('#addTradeForm')[0]);
+                  $.ajax({
+                     url:"{% url 'trade:addTrade' %}",
+                     type:'POST',
+                     dataType:'json',
+                     success: function (result) {
+                        showMsgModal(result.msg,result.msgLevel);
+                        if (result.msgLevel == 'info'){
+                           setTimeout("window.location.reload()",1500);
+                        }
+                     },
+                     data:formData,
+                     cache:false,
+                     contentType:false,
+                     processData:false
+                  });
+                }
+            }
+        });
+        $('#handleTradeForm').bootstrapValidator({
+            backdrop: 'static',
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+            fields: {
+                htstockid: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                },
+                htstockname: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        }
+                    }
+                },
+                htbuyprice: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        },
+                        lessThan: {
+                            value: 500,
+                            inclusive: true,
+                            message: '必须&le;500'
+                        }
+                    }
+                },
+                htbuycount: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项'
+                        },
+                        greaterThan: {
+                            value: 100,
+                            inclusive: true,
+                            message: '必须&ge;100'
+                        }
+                    }
+                },
+                htsellprice: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项',
+                        },
+                    }
+                },
+                htincome: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项',
+                        },
+                    }
+                },
+                htcomission: {
+                    validators: {
+                        notEmpty: {
+                            message: '必填项',
+                        },
+                    }
+                }
+            },
+            submitHandler: function (validator, form, submitButton) {
+                $('#handleTradeModal').modal('hide');
+                $.post(
+                    "{% url 'trade:handleTrade' %}",
+                    form.serialize(),
+                    function(result) {
+                        showMsgModal(result.msg, result.msgLevel);
+                        loadTradeDiv();
+                        loadCustomerDiv();
+                        updateParentWindow();
+                    },
+                    'json'
+                );
+            }
+        });
+        $('#updateFileForm').bootstrapValidator({
+            excluded: [':disabled'],
+            message: 'This value is not valid',
+            feedbackIcons: {
+                valid: 'glyphicon glyphicon-ok',
+                invalid: 'glyphicon glyphicon-remove',
+                validating: 'glyphicon glyphicon-refresh'
+            },
+
+            submitHandler: function (validator, form, submitButton) {
+                    $('#updateFileModal').modal('hide');
+                    var form1 = document.getElementById("updateFileForm");
+                    var inputs = form1.getElementsByTagName('input');
+                    if (checkfile(inputs[1])){
+                      var formData = new FormData($('#updateFileForm')[0]);
+                      $.ajax({
+                         url:"{% url 'trade:updateFile' %}",
+                         type:'POST',
+                         dataType:'json',
+                         success: function (result) {
+                             showMsgModal(result.msg,result.msgLevel);
+                             if (result.msgLevel == 'info'){
+                                 setTimeout("window.location.reload()",1500);
+                             }
+                         },
+                         data:formData,
+                         cache:false,
+                         contentType:false,
+                         processData:false
+                      });
+                    }
+            }
+        });
+        }catch(e){alert(e)}
+{#        $('#searchSaleForm').bootstrapValidator({#}
+{#            excluded: [':disabled'],#}
+{#            message: 'This value is not valid',#}
+{#            feedbackIcons: {#}
+{#                valid: 'glyphicon glyphicon-ok',#}
+{#                invalid: 'glyphicon glyphicon-remove',#}
+{#                validating: 'glyphicon glyphicon-refresh'#}
+{#            },#}
+{#            fields: {#}
+{#            },#}
+{#            submitHandler: function (validator, form, submitButton) {#}
+{#                loadSaleDiv(form.serialize());#}
+{#                resetFormValidator()#}
+{#            }#}
+{#        });#}
+    }
+    function resetFormValidator(){
+        var tradeFormSelector = $('#addTradeForm');
+        tradeFormSelector.find('input').not('#customerid').val("");
+        tradeFormSelector.data('bootstrapValidator').destroy();
+
+        var handleTradeFormSelector = $('#handleTradeForm');
+        handleTradeFormSelector.find('input').not('#htcustomerid').val('');
+        handleTradeFormSelector.data('bootstrapValidator').destroy();
+{#        $('#searchSaleForm').data('bootstrapValidator').destroy();#}
+
+        var updateFormSelector = $('#updateFileForm');
+        updateFormSelector.find('input').not('#customerid').val("");
+        updateFormSelector.data('bootstrapValidator').destroy();
+
+        formValidator();
+    }
+{#    function adShareSelect(obj) {#}
+{#        var options = $("#share");#}
+{#        for (var i = 1; i < 10; i++) {#}
+{#            var option = new Option( i+"|"+(10-i), i+"|" + (10-i));#}
+{#            option.innerText = i+"|"+(10-i);#}
+{#            if(i==5) {#}
+{#                option.selected = true;#}
+{#            }#}
+{#            frag.appendChild(option);#}
+{#        }#}
+{#        options.append(frag);#}
+{#    }#}
+{#    function htShareSelect(obj) {#}
+{#        var options = $("#htshare");#}
+{#        for (var i = 1; i < 10; i++) {#}
+{#            var option = new Option( i+"|"+(10-i), i+"|" + (10-i));#}
+{#            option.innerText = i+"|"+(10-i);#}
+{#            if(i==5) {#}
+{#                option.selected = true;#}
+{#            }#}
+{#            frag.appendChild(option);#}
+{#        }#}
+{#        options.append(frag);#}
+{#    }#}
+{#    function otherDivSelect(obj) {#}
+{#        var options = $("#otherDiv");#}
+{#        var str1=["未出货","非正常盈收 | 下次补亏","非正常盈收 | 客户自抛","非正常盈收 | 客户拉黑","非正常盈收 | 止损做现货",#}
+{#            "非正常盈收 | 超出合作周期","非正常盈收 | 业务员虚假承诺","非正常盈收 | 少量盈利转做现货","非正常盈收 | 少量盈利下次结算",#}
+{#        "非正常盈收 | 客户亏损不再合作","非正常盈收 | 客户急需资金提前出货","已补亏"];#}
+{#        var str2 = ["0","10","11","12","13","14","15","16","17","18","19","09"]#}
+{##}
+{#        for (var i = 0; i <= 11; i++) {#}
+{##}
+{#            var option = new Option(str1[i], str2[i]);#}
+{#            frag.appendChild(option);#}
+{#        }#}
+{#        options.append(frag);#}
+{#    }#}
+{#    function payDivSelect() {#}
+{##}
+{#        var bursarId = ({{ json_bursarId|safe }});#}
+{#        var bursarNick = {{ json_bursarNick|safe }};#}
+{#        var options = $("#payDiv");#}
+{#        for (var i = 0; i <bursarId.length; i++) {#}
+{#            var option = new Option( bursarId[i]+"-"+bursarNick[i], bursarId[i]);#}
+{#            frag.appendChild(option);#}
+{#        }#}
+{#        options.append(frag);#}
+{#    }#}
+
+</script>
+<div id="customerDiv"></div>
+    {% if request.user.userprofile.title.role_name in 'teacher teachermanager teacherboss ops admin' %}
+     <div class="col-md-2">
+        <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addTradeModal" >新增交易</button>
+     </div>
+    {% endif %}
+    <br/>
+    <br/>
+<div id="tradeDiv" data-customerid="{{ customer.id }}"></div>
+{% endblock %}

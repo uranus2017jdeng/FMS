@@ -1,0 +1,168 @@
+<div class="modal fade" id="showMsgModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+{#        <div class="modal-content">#}
+{#            <div class="modal-header">#}
+{#                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>#}
+{#                <h4 class="modal-title">交割单据</h4>#}
+{#            </div>#}
+            <div class="modal-body">
+{#                <div id="msgtext" class="alert alert-info" ></div>#}
+                <div style="text-align: center; width: 540px; height: 360px"> <img id="imgid" src=" " style="width: auto; height: auto; max-width: 100%; max-height: 100%"/></div>
+            </div>
+{#        </div>#}
+    </div>
+</div>
+<table class="table table-bordered col-md-12 table-hover">
+    <thead class="bg-info">
+        <tr>
+{#            <td>ID</td>#}
+            <td>交易状态</td>
+            <td>产品代码</td>
+            <td>产品名称</td>
+            <td>买入价格</td>
+            <td>买入数量</td>
+            <td>买入资金</td>
+            <td>佣金</td>
+            <td>卖出价格</td>
+            <td>盈亏</td>
+            <td>应收</td>
+            <td>实收</td>
+            <td>交易时间</td>
+            <td>收款时间</td>
+            <td>收款类型</td>
+            <td>操作</td>
+        </tr>
+    </thead>
+    <tbody>
+    {% if tradePage %}
+    {% for tradeObj in tradePage %}
+        <tr>
+{#            <td>{{ tradeObj.id }}</td>#}
+            <td>
+                {% if tradeObj.status == 0 %}
+                    未出货
+                {% elif tradeObj.status == 1 %}
+                    退回，{{ tradeObj.message }}
+                {% elif tradeObj.status == 10 %}
+                    非正常盈收｜下次补亏
+                {% elif tradeObj.status == 11 %}
+                    非正常盈收｜客户自抛
+                {% elif tradeObj.status == 12 %}
+                    非正常盈收｜客户拉黑
+                {% elif tradeObj.status == 13 %}
+                    非正常盈收｜止损做现货
+                {% elif tradeObj.status == 14 %}
+                    非正常盈收｜超出合作周期
+                {% elif tradeObj.status == 15 %}
+                    非正常盈收｜业务员虚假承诺
+                {% elif tradeObj.status == 16 %}
+                    非正常盈收｜少量盈利转做现货
+                {% elif tradeObj.status == 17 %}
+                    非正常盈收｜少量盈利下次结算
+                {% elif tradeObj.status == 18 %}
+                    非正常盈收｜客户亏损不再合作
+                {% elif tradeObj.status == 19 %}
+                    非正常盈收｜客户急需资金提前出货
+                {% elif tradeObj.status == 20 %}
+                    等待财务收款
+                {% elif tradeObj.status == 30 %}
+                    已收款
+                {% endif %}
+            </td>
+            <td>{{ tradeObj.stock.stockid}}</td>
+            <td> <label id="showfile" type="button" data-fsid="{{ tradeObj.id }}" onclick="showFile(this)">{{ tradeObj.stock.stockname }}</label></td>
+            <td>{{ tradeObj.buyprice }}</td>
+            <td>{{ tradeObj.buycount}}</td>
+            <td>{{ tradeObj.buycash}}</td>
+            <td>{{ tradeObj.share}}</td>
+            <td>{{ tradeObj.sellprice}}</td>
+            <td>{{ tradeObj.income}}</td>
+            <td>{{ tradeObj.commission}}</td>
+            <td>{{ tradeObj.paycash}}</td>
+            <td>{{ tradeObj.create}}</td>
+            <td>{% if tradeObj.paytime %}{{ tradeObj.paytime}}{% endif %}</td>
+            <td>{{ tradeObj.paytype}}</td>
+            <td>
+                {% if request.user.userprofile.title.role_name in "admin teacher ops teachermanager teacherboss" %}
+                <button type="button" class="btn btn-sm btn-primary" onclick="handleTrade(this)" {% if tradeObj.status == 30 %} disabled="disabled" {% endif %}
+                    data-htid="{{ tradeObj.id }}"
+                    data-htstockid="{{ tradeObj.stock.stockid }}"
+                    data-htcreate="{{ tradeObj.create.date }}"
+                    data-htstockname="{{ tradeObj.stock.stockname }}"
+                    data-htbuyprice="{{ tradeObj.buyprice }}"
+                    data-htbuycount="{{ tradeObj.buycount }}"
+                    data-htshare="{{ tradeObj.share }}"
+                    data-htsellprice="{{ tradeObj.sellprice }}"
+                    data-htincome="{{ tradeObj.income }}"
+                    data-htcommission="{{ tradeObj.commission }}"
+                    data-htusertitle = "{{ user_title }}"
+                >处理</button>
+                {% endif %}
+                {% if request.user.userprofile.title.role_name in "admin ops" %}
+                <button type="button" class="btn btn-sm btn-danger" onclick="deleteTrade(this)"
+                    data-dtid="{{ tradeObj.id }}"
+                >删除</button>
+                {% endif %}
+                {% if request.user.userprofile.title.role_name in "bursar" and tradeObj.status == 20 %}
+                <button type="button" class="btn btn-sm btn-primary" onclick="payTrade(this)"
+                    data-ptid="{{ tradeObj.id }}"
+                    data-ptpaycash="{{ tradeObj.commission }}"
+                >收款</button>
+                {% endif %}
+                {% if request.user.userprofile.title.role_name in "admin ops teachermanage teacherboss" %}
+                 <button id="update" type="button" class="btn btn-sm btn-primary" data-toggle="modal" onclick="updateFile(this)"
+                    data-udid="{{ tradeObj.id }}"
+                >更新</button>
+                {% endif %}
+            </td>
+        </tr>
+    {% endfor %}
+    {% else %}
+         <tr><td colspan="15">无交易信息</td></tr>
+    {% endif %}
+    </tbody>
+</table>
+<nav class="navbar-right">
+  <ul class="pagination">
+    <li>
+        {% if tradePage.has_previous %}
+            <span aria-hidden="true" onclick="loadTradeDiv('page={{ tradePage.previous_page_number }}&{{ requestArgs }}')">&laquo;</span>
+        {% endif %}
+    </li>
+    <li><span class="current">
+           第{{ tradePage.number }}/{{ tradePage.paginator.num_pages }}页
+        </span></li>
+    <li>
+        {% if tradePage.has_next %}
+            <span aria-hidden="true" onclick="loadTradeDiv('page={{ tradePage.next_page_number }}&{{ requestArgs }}')">&raquo;</span>
+        {% endif %}
+    </li>
+  </ul>
+</nav>
+
+<script type="text/javascript">
+    function showFile(obj){
+        var tradeId = $(obj).data("fsid");
+        $.post(
+            "{% url 'trade:showFile' %}",
+            {"tradeid":tradeId},
+            function(result) {
+                showFileMsgModal(result.msg, result.msgLevel,result.filename);
+            },
+            'json'
+        );
+    };
+     function showFileMsgModal(msg,msgLevel,filename){
+        $('#msgtext').text(msg);
+        if(msgLevel == 'info'){
+            $('#msgtext').attr("class",'alert alert-info' );
+            $('#imgid').attr("src",filename);
+        }else{
+            $('#msgtext').attr("class",'alert alert-danger');
+        }
+        $('#showMsgModal').modal('show');
+    }
+    $('#showMsgModal').on('hidden.bs.modal', function() {
+            $('body').css("padding",0);
+    });
+</script>
