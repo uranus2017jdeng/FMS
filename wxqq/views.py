@@ -54,6 +54,7 @@ def wxManage(request):
 
 @login_required()
 def queryWx(request):
+    #查看权限：admin ops sale saleboss salemanager
     # t1 = time.clock()
     data = {}
     wxs = Wx.objects.all().order_by('delete', 'bindsale__saleId')
@@ -235,6 +236,7 @@ def qqManage(request):
 
 @login_required()
 def queryQq(request):
+    #查看权限：admin ops sale saleboss salemanager
     # t1 = time.clock()
     data = {}
     qqs = Qq.objects.all().order_by('delete','bindsale__saleId')
@@ -280,7 +282,7 @@ def queryQq(request):
         "requestArgs": getArgsExcludePage(request),
     }
     # t2 = time.clock()
-    # logger.error("wxqq/quertQq cost time: %f"%(t2-t1))
+    # logger.error("wxqq/queryQq cost time: %f"%(t2-t1))
     return render(request, 'wxqq/queryQq.html', data)
 
 @login_required()

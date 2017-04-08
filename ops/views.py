@@ -70,6 +70,7 @@ def addUser(request):
 
 @login_required()
 def queryUser(request):
+    #查看权限：admin ops saleboss
     # t1 = time.clock()
     if(request.GET.get('title') or request.GET.get('company') or request.GET.get('department')
        or request.GET.get('username') or request.GET.get('nick') or request.GET.get('cid')):
@@ -77,6 +78,7 @@ def queryUser(request):
         users = users.filter(~Q(username='admin'))
         if request.user.userprofile.title.role_name == 'saleboss':
            users = users.filter(userprofile__company=request.user.userprofile.company)
+
         users = users.filter(userprofile__company__icontains=request.GET.get('company', ''))
         users = users.filter(userprofile__department__icontains=request.GET.get('department', ''))
         if 'title' in request.GET:

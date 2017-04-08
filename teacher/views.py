@@ -43,6 +43,9 @@ def queryTeacher(request):
     # t1 = time.clock()
     if(request.GET.get('teacherid') or request.GET.get('company') or request.GET.get('department') or request.GET.get('group') or request.GET.get('binduser')):
         teachers = Teacher.objects.all().order_by('teacherId')
+        if request.user.userprofile.title.role_name != 'admin':
+            teachers = teachers.filter(company=request.user.userprofile.company)
+        
         teachers = teachers.filter(teacherId__icontains=request.GET.get('teacherid', ''))
         teachers = teachers.filter(company__icontains=request.GET.get('company', ''))
         teachers = teachers.filter(department__icontains=request.GET.get('department', ''))
@@ -112,16 +115,24 @@ def addTeacher(request):
 
 
         # bindbursarid = request.POST.get('bindbursar', '无')
+        a = request.POST.get("bindbursarId")
+
         if request.POST.get('bindbursarId', '无'):
             if Bursar.objects.get(bursarId=request.POST.get('bindbursarId')):
                 bursar = Bursar.objects.get(bursarId=request.POST.get('bindbursarId'))
-                bindbursarid = str(bursar.id)
+                if newTeacher.company == bursar.company:
+                    newTeacher.bindbursar = bursar
+                else:
+                    raise NameError("管理专员与财务与不属于同一公司")
+                # bindbursarid = str(bursar.id)
+
         else:
             bindbursarid = '无'
-        if bindbursarid.isdigit():
-            newTeacher.bindbursar = Bursar.objects.get(id=bindbursarid)
-        else:
             newTeacher.bindbursar = None
+        # if bindbursarid.isdigit():
+        #     newTeacher.bindbursar = Bursar.objects.get(id=bindbursarid)
+        # else:
+        #     newTeacher.bindbursar = None
 
         # 如果绑定的财务变化，需要将该老师所有未收款的客户都切换对应的财务
         customers = newTeacher.customer_set.filter(~Q(status=40) & ~Q(status=98))
@@ -164,12 +175,12 @@ def addTeacherGroup(request):
                 index = '0' + str(i)
             else:
                 index = str(i)
-            teacherId = company + group + department + index
-            teacher, created = Teacher.objects.get_or_create(teacherId=teacherId)
-            teacher.company = company
-            teacher.department = department
-            teacher.group = group
-            teacher.save()
+            teacherId = 'GL'+ company + group + department + index
+            teacher, created = Teacher.objects.get_or_create(teacherId=teacherId,company=company,department=department,group=group)
+            # teacher.company = company
+            # teacher.department = department
+            # teacher.group = group
+            # teacher.save()
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
     except Exception as e:

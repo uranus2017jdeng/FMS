@@ -35,6 +35,7 @@ def saleManage(request):
 
 @login_required()
 def querySale(request):
+    #查看权限：admin ops saleboss
     # t1 = time.clock()
     if(request.GET.get('saleid') or request.GET.get('department')
        or request.GET.get('binduser') or request.GET.get('bindteacher')):
@@ -93,24 +94,27 @@ def addSale(request):
         if request.POST.get('bindusername'):
             # binduserid = request.POST.get('binduser', '无')
             if User.objects.get(username=request.POST.get('bindusername','')):
-                user = User.objects.get(username=request.POST.get('bindusername',''))
-                binduserid = str(user.id)
+                 # user = User.objects.get(username=request.POST.get('bindusername',''))
+                newSale.binduser = User.objects.get(username=request.POST.get('bindusername',))
+                # binduserid = str(user.id)
         else:
             binduserid = '无'
-
-        if binduserid.isdigit():
-            try:
-                oldSale = Sale.objects.get(binduser_id=binduserid)
-
-                oldSale.binduser = None
-                oldSale.save()
-            except Exception as e:
-                # print(e.message)
-                # print(e.__str__())
-                pass
-            newSale.binduser = User.objects.get(id=binduserid)
-        else:
             newSale.binduser = None
+
+        # if binduserid.isdigit():
+        #     try:
+        #         oldSale = Sale.objects.get(binduser_id=binduserid)
+        #
+        #         oldSale.binduser = None
+        #         oldSale.save()
+        #     except Exception as e:
+        #         # print(e.message)
+        #         # print(e.__str__())
+        #         pass
+        #     newSale.binduser = User.objects.get(id=binduserid)
+        # else:
+        #     newSale.binduser = None
+
         #开发ID修改了绑定的真实用户 ，则更新所有相关的未提交客户真实开发用户信息
         customers = newSale.customer_set.filter(Q(status=0)|Q(status=10)|Q(status=30))
         for customer in customers:
@@ -121,21 +125,26 @@ def addSale(request):
         # newSale.department = request.POST['department']
 
 
-        a = request.POST.get('bindteacherId', '')
         teacherid = request.POST.get('bindteacherId', '')
         # teacher = Teacher.objects.get(teacherId=request.POST.get('bindteacherId', ''))
-        if teacherid:
+        if request.POST.get('bindteacherId', ''):
             teacher = Teacher.objects.get(teacherId=request.POST.get('bindteacherId'))
+            if newSale.company == teacher.company:
+                newSale.bindteacher = teacher
+            else:
+                raise NameError("开发人员和管理专员属于不同公司")
             # bindteacher = request.POST.get('bindteacher', '无')
-            bindteacher = str(teacher.id)
+            # bindteacher = str(teacher.id)
         else:
-             bindteacher = '无'
-        if bindteacher.isdigit():
-            # teacher = Teacher.objects.get(id=request.POST.get('bindteacher'))
-            teacher = Teacher.objects.get(id=bindteacher)
-            newSale.bindteacher = teacher
-        else:
+            bindteacher = '无'
             newSale.bindteacher = None
+        # if bindteacher.isdigit():
+        #     # teacher = Teacher.objects.get(id=request.POST.get('bindteacher'))
+        #     teacher = Teacher.objects.get(id=bindteacher)
+        #     newSale.bindteacher = teacher
+        # else:
+        #     newSale.bindteacher = None
+
         #更换开发绑定的老师，将该开发所有的未提交的客户对应的老师都修改为新的老师
         customers = newSale.customer_set.filter(Q(status=0)|Q(status=30)|Q(status=10))
         for customer in customers:
@@ -172,7 +181,7 @@ def addSaleGroup(request):
                 index = '0' +str(i)
             else:
                 index = str(i)
-            saleId = company + group + department + index
+            saleId = 'KF'+ company + group + department + index
             sale, created = Sale.objects.get_or_create(saleId=saleId)
             sale.company = company
             sale.department = department
@@ -250,6 +259,7 @@ def delSaleManagerPassword(request):
 
 @login_required()
 def saleKpiReport(request):
+    #查看权限：admin ops saleboss salemanager bursarmanager
     # t1 = time.clock()
     if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'salemanager', 'saleboss','bursarmanager']):
         return HttpResponseRedirect("/")
@@ -273,11 +283,21 @@ def saleKpiReport(request):
     cursor = connection.cursor()
     cursor.execute(sql)
     companys = []
-    for row in cursor.fetchall():
-        company = {}
-        company['company'] = row[0]
-        company['dcount'] = row[1]
-        companys.append(company)
+    #不同角色看不到不同公司
+    if not request.user.userprofile.title.role_name in ['admin','ops']:
+        for row in cursor.fetchall():
+            company = {}
+            if row[0] == request.user.userprofile.company:
+                company['company'] = row[0]
+                company['dcount'] = row[1]
+                companys.append(company)
+    else:
+        for row in cursor.fetchall():
+            company = {}
+            company['company'] = row[0]
+            company['dcount'] = row[1]
+            companys.append(company)
+
     data = {
         "companys": companys,
         "startDate": str(startDate),
@@ -440,6 +460,7 @@ def getSaleDetail(request):
 
 @login_required()
 def dishonestCustomerReport(request):
+    #查看权限：admin ops saleboss
     # t1 =time.clock()
     if not request.user.userprofile.title.role_name in ['admin', 'ops', 'saleboss']:
         return HttpResponseRedirect("/")
@@ -454,8 +475,8 @@ def dishonestCustomerReport(request):
     else:
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
     companys = Sale.objects.values('company').distinct()
-    # if request.user.userprofile.title.role_name == 'saleboss':
-    #     companys = companys.filter(company=request.user.userprofile.company)
+    if request.user.userprofile.title.role_name == 'saleboss':
+        companys = companys.filter(company=request.user.userprofile.company)
     days = []
     tmpDay = startDate
     while tmpDay <= endDate:
@@ -499,6 +520,7 @@ def dishonestCustomer(request):
 
 @login_required()
 def queryDishonestCustomer(request):
+    #查看权限：admin ops saleboss salemanager
     endDate = request.GET.get('endDate', "")
     if endDate == '':
         endDate = datetime.datetime.today() + datetime.timedelta(days=1)

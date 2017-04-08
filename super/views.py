@@ -63,23 +63,24 @@ def login_view(request):
                 userauth = authenticate(username=request.POST['username'], password=request.POST['password'])
                 if userauth is not None:
                     login(request, userauth)
-                    if userauth.userprofile.title.role_name in ['sale', 'saleboss', 'salemanager']:
-                        # redirect_to = '/customer/customerManage'
-                        redirect_to = '/'
-                    elif userauth.userprofile.title.role_name in ['teacher', 'teacherboss', 'teachermanager']:
-                        # redirect_to = '/customer/customerHandle'
-                        redirect_to = '/'
-                    elif userauth.userprofile.title.role_name in ['spotteacher', 'spotmanager']:
-                        # redirect_to = '/spot/spotCustomer'
-                        redirect_to = '/'
-                    elif userauth.userprofile.title.role_name in ['bursar', 'bursarmanager']:
-                        # redirect_to = '/customer/tradePayManage'
-                        redirect_to = '/'
-                    elif userauth.userprofile.title.role_name in ['admin', 'ops']:
-                        # redirect_to = '/ops/userManage'
-                        redirect_to = '/'
-                    else:
-                        redirect_to = '/'
+                    # if userauth.userprofile.title.role_name in ['sale', 'saleboss', 'salemanager']:
+                    #     # redirect_to = '/customer/customerManage'
+                    #     redirect_to = '/'
+                    # elif userauth.userprofile.title.role_name in ['teacher', 'teacherboss', 'teachermanager']:
+                    #     # redirect_to = '/customer/customerHandle'
+                    #     redirect_to = '/'
+                    # elif userauth.userprofile.title.role_name in ['spotteacher', 'spotmanager']:
+                    #     # redirect_to = '/spot/spotCustomer'
+                    #     redirect_to = '/'
+                    # elif userauth.userprofile.title.role_name in ['bursar', 'bursarmanager']:
+                    #     # redirect_to = '/customer/tradePayManage'
+                    #     redirect_to = '/'
+                    # elif userauth.userprofile.title.role_name in ['admin', 'ops']:
+                    #     # redirect_to = '/ops/userManage'
+                    #     redirect_to = '/'
+                    # else:
+                    #     redirect_to = '/'
+                    redirect_to = '/'
                     userauth.userprofile.failcount = 0
                     userauth.userprofile.faillocktime = None
                     userauth.userprofile.save()
@@ -103,6 +104,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
+    del request.session # 删除session
     redirect_to = '/'
     return HttpResponseRedirect(redirect_to)
 

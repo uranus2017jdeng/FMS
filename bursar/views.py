@@ -43,10 +43,11 @@ def bursarManage(request):
 @login_required()
 def queryBursar(request):
     # t1 = time.clock()
-    if (request.GET.get('bursarid') or request.GET.get('binduser')):
+    if (request.GET.get('bursarid') or request.GET.get('binduser') or request.GET.get('company')):
         bursars = Bursar.objects.all().order_by('bursarId')
         bursars = bursars.filter(bursarId__icontains=request.GET.get('bursarid', ''))
-        # bursars = bursars.filter(company__icontains=request.GET.get('company', ''))
+        bursars = bursars.filter(company__icontains=request.GET.get('company', ''))
+
         # bursars = bursars.filter(department__icontains=request.GET.get('department', ''))
         if 'binduser' in request.GET and request.GET['binduser'] != '':
             bursars = bursars.filter(binduser__userprofile__nick__icontains=request.GET.get('binduser'))
@@ -85,7 +86,6 @@ def addBursar(request):
         else:
             newBursar = Bursar.objects.get(id=request.POST['id'])
 
-
         # binduserid = request.POST.get('binduser', '无')
         if request.POST.get('bindusername'):
             # binduserid = request.POST.get('binduser', '无')
@@ -122,10 +122,35 @@ def addBursarGroup(request):
     try:
         # bursarCount = request.POST.get('bursarCount')
         bursarCode = request.POST.get('bursarCode')
-        departmentID = request.POST.get('departmentID')
-        groupID = request.POST.get('groupID')
-        bursarID = str(bursarCode)+str(groupID)+str(departmentID)
-        bursar,created = Bursar.objects.get_or_create(bursarId=bursarID)
+        company = request.POST.get('company')
+        departments = request.POST.get('departments')
+        groups = request.POST.get('groups')
+
+        for i in range(1, int(groups) + 1):
+            if i < 10:
+                groupID = '0' + str(i)
+            else:
+                groupID = str(i)
+            for j in range(1, int(departments) + 1):
+                if j < 10:
+                    departmentID = '0' + str(j)
+                else:
+                    departmentID = str(j)
+
+                bursarID = str(bursarCode)+company+groupID+departmentID
+                bursar, created = Bursar.objects.get_or_create(bursarId=bursarID,company=company)
+
+            # saleId = company + group + department + index
+            # sale, created = Sale.objects.get_or_create(saleId=saleId)
+            # sale.company = company
+            # sale.department = department
+            # sale.group = group
+            # sale.save()
+
+        # departmentID = request.POST.get('departmentID')
+        # groupID = request.POST.get('groupID')
+        # bursarID = str(bursarCode)+str(groupID)+str(departmentID)
+        # bursar,created = Bursar.objects.get_or_create(bursarId=bursarID)
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
 
@@ -157,7 +182,7 @@ def delBursar(request):
 @login_required()
 def payReport(request):
     # t1 = time.clock()
-    if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'bursar', 'bursarmanager', 'teacher', 'teachermanager', 'saleboss', 'salemanager']):
+    if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'bursar', 'bursarmanager',  'teachermanager', 'saleboss', 'salemanager']):
         return HttpResponseRedirect("/")
     # trades = Trade.objects.filter(paytime__isnull=False,status=30).order_by('-paytime')
 
@@ -291,20 +316,22 @@ def queryPayReport(request):
     if paytype :
         trades = trades.filter(paytype=paytype)
 
-
+    #不同角色
     if request.user.userprofile.title.role_name == 'bursar':
         trades = trades.filter(customer__bursar__binduser=request.user)
-    if request.user.userprofile.title.role_name == 'teacher':
-        # trades = trades.filter(customer__teacher__binduser=request.user)
-        trades = trades.filter(realteacheruser=request.user)
-    if request.user.userprofile.title.role_name == 'teachermanager':
-        # trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
-        #                        customer__teacher__department=request.user.userprofile.department,
-        #                        customer__teacher__group=request.user.userprofile.group)
-        user = request.user
-        bursarID = 'CW'+user.userprofile.group+user.userprofile.department
-        trades = trades.filter(customer__bursar__bursarId__icontains=str(bursarID))
+    if request.user.userprofile.title.role_name == 'bursarmanager':
+        trades = trades.filter(customer__bursar__company=request.user.userprofile.company)
 
+    if request.user.userprofile.title.role_name == 'teacher':
+        trades = trades.filter(customer__teacher__binduser=request.user)
+        # trades = trades.filter(realteacheruser=request.user)
+    if request.user.userprofile.title.role_name == 'teachermanager':
+        trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
+                               customer__teacher__department=request.user.userprofile.department,
+                               customer__teacher__group=request.user.userprofile.group)
+        # user = request.user
+        # bursarID = 'CW'+user.userprofile.group+user.userprofile.department
+        # trades = trades.filter(customer__bursar__bursarId__icontains=str(bursarID))
     if request.user.userprofile.title.role_name == 'saleboss':
         trades = trades.filter(customer__sales__company=request.user.userprofile.company)
     if request.user.userprofile.title.role_name == 'salemanager':
@@ -355,8 +382,12 @@ def payTypeReport(request):
     else:
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
     trades = trades.filter(paytime__lte=endDate, paytime__gte=startDate)
+    #不同角色
     if request.user.userprofile.title.role_name == 'bursar':
         trades=trades.filter(customer__bursar__binduser=request.user)
+    if request.user.userprofile.title.role_name == 'bursarmanager':
+        trades = trades.filter(customer__bursar__company=request.user.userprofile.company)
+
     company = request.POST.get('company', "")
     if company != '':
         trades=trades.filter(realteacheruser__teacher__company=company)
@@ -376,8 +407,9 @@ def payTypeReport(request):
 
 @login_required()
 def payCompanyReport(request):
+    #查看权限：admin ops saleboss
     # t1 = time.clock()
-    if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'bursar', 'bursarmanager', 'saleboss']):
+    if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'saleboss']):
         return HttpResponseRedirect("/")
     data = { }
     startDate = request.GET.get('startDate', '')
@@ -396,6 +428,7 @@ def payCompanyReport(request):
     return render(request, 'bursar/payCompanyReport.html', data)
 
 def queryPayCompany(request):
+    #查看权限： admin ops saleboss
     # t1 = time.clock()
     startDate = request.GET.get('startDate', '')
     endDate = request.GET.get('endDate', '')
@@ -469,6 +502,13 @@ def payStockReport(request):
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
     trades = Trade.objects.filter(paytime__isnull=False)
     trades = trades.filter(paytime__lte=endDate, paytime__gte=startDate)
+
+    #不同角色
+    if request.user.userprofile.title.role_name == 'bursar':
+        trades=trades.filter(customer__bursar__binduser=request.user)
+    if request.user.userprofile.title.role_name == 'bursarmanager':
+        trades = trades.filter(customer__bursar__company=request.user.userprofile.company)
+
     tradeStockPaySum = trades.values('stock_id', 'stock__stockid', 'stock__stockname').annotate(Sum('paycash'))
     total = tradeStockPaySum.aggregate(Sum('paycash__sum'))
     data = {
@@ -481,6 +521,9 @@ def payStockReport(request):
 
 @login_required()
 def payCompanySerialReport(request):
+    #查看权限：admin ops saleboss
+    if (not request.user.userprofile.title.role_name in ['admin', 'ops', 'saleboss']):
+        return HttpResponseRedirect("/")
     # t1 = time.clock()
     endDate = request.POST.get('endDate', "")
     if endDate == '':
@@ -493,7 +536,8 @@ def payCompanySerialReport(request):
     else:
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
     companys = Sale.objects.values('company').distinct()
-    companys = companys.filter(company=request.user.userprofile.company)
+    if request.user.userprofile.title.role_name == 'saleboss':
+        companys = companys.filter(company=request.user.userprofile.company)
     days = []
     tmpDay = startDate
     while tmpDay <= endDate:

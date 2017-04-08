@@ -71,6 +71,7 @@ def customerManage(request):
 
 @login_required()
 def queryCustomer(request):
+    #查看权限：admin ops saleboss salemanager sale
     # t1 = time.clock()
     customers = Customer.objects.all().order_by('-modify')
 
@@ -169,7 +170,7 @@ def addCustomer(request):
         if request.POST['id'] == "":  #新增客户
             newCustomer = Customer.objects.create(sales=sale, create=timezone.now(), modify=timezone.now())
             newCustomer.realuser = sale.binduser
-            teachers = Teacher.objects.filter(binduser__isnull=False).order_by('customercount')
+            teachers = Teacher.objects.filter(binduser__isnull=False, company=request.user.userprofile.company).order_by('customercount')
             for teacher in teachers:
                 newCustomer.teacher = teacher
                 teacher.customercount += 1
@@ -465,7 +466,7 @@ def queryCustomerHandle(request):
         customers = customers.filter(~Q(status=99))
     else:
         customers = customers
-    # logger.error("queryCustomerHandle/customer status: %s" % (customer_status))
+
     # 去掉退回状态的客户
     customers = customers.exclude(status=10)
     customers = customers.exclude(status=30)
@@ -787,7 +788,7 @@ def noTradeCustomerReport(request):
 @login_required()
 def tradeTypeReport(request):
     # t1 = time.clock()
-    if not request.user.userprofile.title.role_name in ['admin', 'ops', 'teacher', 'teachermanager', 'teacherboss']:
+    if not request.user.userprofile.title.role_name in ['admin', 'ops', 'teachermanager', 'teacherboss']:
         return HttpResponseRedirect("/")
     teachers = Teacher.objects.all()
     teachers = teachers.exclude(binduser__isnull=True)
@@ -1036,12 +1037,7 @@ def tradePayManage(request):
 def queryTradePayManage(request):
     # t1 = time.clock()
     trades = Trade.objects.filter(status=20).order_by('-dealtime')
-    if request.user.userprofile.title.role_name == 'bursar':
-        trades = trades.filter(customer__bursar__binduser=request.user)
-    if request.user.userprofile.title.role_name == 'teachermanager':
-        user = request.user
-        bursurID = 'CW'+user.userprofile.group+user.userprofile.department
-        trades = trades.filter(customer__bursar__bursarId=bursurID)
+
     endDate = request.GET.get('endDate', "")
     if endDate == '':
         endDate = datetime.date.today() + datetime.timedelta(days=1)
@@ -1053,6 +1049,17 @@ def queryTradePayManage(request):
     else:
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
     trades = trades.filter(dealtime__lte=endDate, dealtime__gte=startDate)
+
+    #不同角色
+    if request.user.userprofile.title.role_name == 'bursar':
+        trades = trades.filter(customer__bursar__binduser=request.user)
+    if request.user.userprofile.title.role_name == 'teachermanager':
+        user = request.user
+        bursurID = 'CW'+user.userprofile.company+user.userprofile.group+user.userprofile.department
+        trades = trades.filter(customer__bursar__bursarId=bursurID)
+    if request.user.userprofile.title.role_name == 'bursarManager':
+        trades = trades.filter(customer__bursar__company=request.user.userprofile.company)
+
     data = {
         "trades": trades,
     }

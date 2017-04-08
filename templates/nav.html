@@ -17,7 +17,7 @@
         <!-- Collect the nav links, forms, and other content for toggling -->
         <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
             <ul class="nav navbar-nav">
-                {% if user.userprofile.title.role_name in  'admin' %}
+                {% if user.userprofile.title.role_name in  'admin ops' %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">系统管理 <span class="caret"></span></a>
@@ -27,8 +27,8 @@
                             <li class=""><a href="{% url 'super:newsPush' %}" target="_self">消息发布</a></li>
                         </ul>
                     </li>
-                {% endif %}
-                {% if user.userprofile.title.role_name in 'admin ops' %}
+{#                {% endif %}#}
+{#                {% if user.userprofile.title.role_name in 'admin ops' %}#}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">后台管理 <span class="caret"></span></a>
@@ -49,9 +49,9 @@
                            aria-haspopup="true" aria-expanded="false">开发菜单 <span class="caret"></span></a>
                         <ul class="dropdown-menu">
                             <li class=""><a href="{% url 'customer:customerManage' %}" target="_self">客户管理</a></li>
-                            {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'saleboss' or user.userprofile.title.role_name == 'salemanager' %}
+                            {% if not user.userprofile.title.role_name == 'sale' %}
                                 <li class=""><a href="{% url 'sale:dishonestCustomer' %}" target="_self">不诚信客户</a></li>
-                                {% if user.userprofile.title.role_name != 'salemanager' %}
+                                {% if user.userprofile.title.role_name in 'admin ops' or user.userprofile.title.role_name == 'saleboss' %}
                                    <li class=""><a href="{% url 'sale:dishonestCustomerReport' %}" target="_self">不诚信客户汇总</a></li>
                                 {% endif %}
                                 <li class=""><a href="{% url 'sale:saleKpiReport' %}" target="_self">开发绩效汇总</a></li>
@@ -60,7 +60,7 @@
                             {% if user.userprofile.title.role_name == 'salemanager' %}
                                 <li class=""><a href="{% url 'sale:saleKpiReportForManager' %}" target="_self">有效客户增长趋势</a></li>
                             {% endif %}
-                            {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'saleboss'  %}
+                            {% if user.userprofile.title.role_name in 'admin ops' or user.userprofile.title.role_name == 'saleboss'  %}
                                 <li class=""><a href="{% url 'ops:userManage' %}" target="_self">用户管理</a></li>
                                 <li class=""><a href="{% url 'sale:saleManage' %}" target="_self">开发部ID</a></li>
                                 <li class=""><a href="{% url 'sale:saleKpiReportSerial' %}" target="_self">有效客户增长趋势</a></li>
@@ -81,10 +81,8 @@
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">客户管理专员菜单 <span class="caret"></span></a>
                         <ul class="dropdown-menu">
-                            {% if user.userprofile.title.role_name in 'admin ops teacher teachermanager teacherboss' %}
                             <li class=""><a href="{% url 'customer:customerHandle' %}" target="_self">交易管理</a></li>
-                            {% endif %}
-                            {% if user.userprofile.title.role_name in 'admin ops teacherboss teachermanager' %}
+                            {% if user.userprofile.title.role_name != 'teacher' %}
 {#                                <li class=""><a href="{% url 'customer:noTradeCustomerReport' %}" target="_self">待交易客户汇总</a></li>#}
                                 <li class=""><a href="{% url 'customer:tradeTypeReport' %}" target="_self">交易分类汇总</a></li>
 {#                                <li class=""><a href="{% url 'customer:dCustomerReport' %}" target="_self">D类客户开发趋势图</a></li>#}
@@ -107,7 +105,7 @@
 {#                        </ul>#}
 {#                    </li>#}
 {#                {% endif %}#}
-                {% if user.userprofile.title.role_name == 'admin' or user.userprofile.title.role_name == 'ops' or user.userprofile.title.role_name == 'bursar' or user.userprofile.title.role_name == 'bursarmanager' or user.userprofile.title.role_name == 'saleboss' %}
+                {% if user.userprofile.title.role_name in 'admin ops bursar bursarmanager'  or user.userprofile.title.role_name == 'saleboss' %}
                     <li class="dropdown">
                         <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button"
                            aria-haspopup="true" aria-expanded="false">财务菜单 <span class="caret"></span></a>
@@ -130,7 +128,7 @@
                         </ul>
                     </li>
                 {% endif %}
-                {% if user.userprofile.title.role_name in 'admin sale salemanager saleboss teacher teachermanager teacherboss bursar bursarmanager ops' %}
+{#                {% if user.userprofile.title.role_name in 'admin sale salemanager saleboss teacher teachermanager teacherboss bursar bursarmanager ops' %}#}
                    <div class="nav navbar-nav">
                      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
                        data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
@@ -141,7 +139,7 @@
                      </button>
                        <a class="navbar-brand" style="font-size: 14px" href="{% url 'ops:systemLog' %}">版本更新</a>
                    </div>
-                {% endif %}
+{#                {% endif %}#}
 
             </ul>
             <ul class="nav navbar-nav navbar-right">
