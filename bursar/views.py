@@ -90,14 +90,17 @@ def addBursar(request):
         if request.POST.get('bindusername'):
             # binduserid = request.POST.get('binduser', '无')
             if User.objects.get(username=request.POST.get('bindusername','')):
-                user = User.objects.get(username=request.POST.get('bindusername',''))
+                user = User.objects.get(username=request.POST.get('bindusername'))
                 binduserid = str(user.id)
         else:
             binduserid = '无'
 
 
         if binduserid.isdigit():
-            newBursar.binduser = User.objects.get(id=binduserid)
+            if newBursar.company == user.userprofile.company:
+                newBursar.binduser = User.objects.get(id=binduserid)
+            else:
+                raise Exception("财务专员与用户不属于同一公司")
         else:
             newBursar.binduser = None
         # newBursar.company = request.POST['company']
@@ -121,7 +124,7 @@ def addBursarGroup(request):
     data = {}
     try:
         # bursarCount = request.POST.get('bursarCount')
-        bursarCode = request.POST.get('bursarCode')
+        # bursarCode = request.POST.get('bursarCode')
         company = request.POST.get('company')
         departments = request.POST.get('departments')
         groups = request.POST.get('groups')
@@ -137,7 +140,7 @@ def addBursarGroup(request):
                 else:
                     departmentID = str(j)
 
-                bursarID = str(bursarCode)+company+groupID+departmentID
+                bursarID = 'CW'+company+groupID+departmentID
                 bursar, created = Bursar.objects.get_or_create(bursarId=bursarID,company=company)
 
             # saleId = company + group + department + index

@@ -177,7 +177,6 @@ def addCustomer(request):
                 # teacher.save()
                 break
 
-
             # newCustomer.bursar = sale.bindteacher.bindbursar
             newCustomer.bursar = newCustomer.teacher.bindbursar
 
@@ -398,16 +397,18 @@ def customerHandle(request):
 
     if request.user.userprofile.title.role_name == 'teacher':
         teacher = Teacher.objects.get(binduser=request.user)
+        teachers = None
     else:
         teacher = None
-    teachers = Teacher.objects.all()
-    if request.user.userprofile.title.role_name == 'teacherboss':
-        teachers = teachers.filter(company=request.user.userprofile.company, binduser__isnull=False)
-    elif request.user.userprofile.title.role_name == 'teachermanager':
-        teachers = teachers.filter(company= request.user.userprofile.company, department=request.user.userprofile.department,
+        teachers = Teacher.objects.all()
+        if request.user.userprofile.title.role_name == 'teacherboss':
+            teachers = teachers.filter(company=request.user.userprofile.company, binduser__isnull=False)
+        elif request.user.userprofile.title.role_name == 'teachermanager':
+            teachers = teachers.filter(company= request.user.userprofile.company, department=request.user.userprofile.department,
                                           group= request.user.userprofile.group, binduser__isnull=False)
-    elif request.user.userprofile.title.role_name in ['admin', 'ops']:
-        teachers = teachers.filter(binduser__isnull=False)
+        elif request.user.userprofile.title.role_name in ['admin', 'ops']:
+            teachers = teachers.filter(binduser__isnull=False)
+
     data = {
         # "spotTeachers": spotTeachers,
         "startDate": str(startDate),
@@ -1095,12 +1096,14 @@ def addTeacherCustomer(request):
         newCustomer = Customer.objects.create(create=timezone.now(), modify=timezone.now())
         teacher = Teacher.objects.get(id=request.POST.get('teacher'))
         newCustomer.teacher = teacher
+        teacher.customercount += 1
+        teacher.save()
         newCustomer.bursar = teacher.bindbursar
         newCustomer.status = 20
         newCustomer.name = request.POST.get('name', '')
 
-        # #将老师新增的客户绑定在虚拟sale Z88888
-        sale = Sale.objects.get(id=1633)
+        # #将老师新增的客户绑定在虚拟sale
+        sale = Sale.objects.get(saleId='KF'+teacher.company+'888888')
         newCustomer.sales = sale
         
         newCustomer.phone = request.POST.get('phone', '')
@@ -1118,12 +1121,12 @@ def addTeacherCustomer(request):
 
 
         # 提交时刷新对应老师的消息
-        teacherUser = newCustomer.teacher.binduser
-        if teacherUser:
-            transmission, created = Transmission.objects.get_or_create(user=teacherUser)
-            transmission.transmission = "客户信息有更新，请刷新页面查看。"
-            transmission.checked = False
-            transmission.save()
+        # teacherUser = newCustomer.teacher.binduser
+        # if teacherUser:
+        #     transmission, created = Transmission.objects.get_or_create(user=teacherUser)
+        #     transmission.transmission = "客户信息有更新，请刷新页面查看。"
+        #     transmission.checked = False
+        #     transmission.save()
 
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"

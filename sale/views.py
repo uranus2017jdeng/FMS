@@ -94,24 +94,41 @@ def addSale(request):
         if request.POST.get('bindusername'):
             # binduserid = request.POST.get('binduser', '无')
             if User.objects.get(username=request.POST.get('bindusername','')):
-                 # user = User.objects.get(username=request.POST.get('bindusername',''))
-                newSale.binduser = User.objects.get(username=request.POST.get('bindusername',))
+                try:
+                    user = User.objects.get(username=request.POST.get('bindusername'))
+                    #若用户先前绑定了开发，则解绑
+                    try:
+                        oldSale = Sale.objects.get(binduser_id=str(user.id))
+                        oldSale.binduser = None
+                        oldSale.save()
+                    except Exception as e:
+                        pass
+                    if newSale.company == user.userprofile.company:
+                        newSale.binduser = user
+                    # binduserid = str(user.id)
+                    else:
+                        raise Exception("开发和用户不属于同一公司")
                 # binduserid = str(user.id)
+                except Exception as e:
+                    raise Exception("用户不存在")
         else:
-            binduserid = '无'
+            # binduserid = '无'
             newSale.binduser = None
 
         # if binduserid.isdigit():
         #     try:
         #         oldSale = Sale.objects.get(binduser_id=binduserid)
-        #
         #         oldSale.binduser = None
         #         oldSale.save()
         #     except Exception as e:
         #         # print(e.message)
         #         # print(e.__str__())
         #         pass
-        #     newSale.binduser = User.objects.get(id=binduserid)
+        #     if newSale.company == user.userprofile.company:
+        #         newSale.binduser = user
+        #         # binduserid = str(user.id)
+        #     else:
+        #         raise Exception("开发和用户不属于同一公司")
         # else:
         #     newSale.binduser = None
 
@@ -127,16 +144,16 @@ def addSale(request):
 
         teacherid = request.POST.get('bindteacherId', '')
         # teacher = Teacher.objects.get(teacherId=request.POST.get('bindteacherId', ''))
-        if request.POST.get('bindteacherId', ''):
-            teacher = Teacher.objects.get(teacherId=request.POST.get('bindteacherId'))
+        if teacherid:
+            teacher = Teacher.objects.get(teacherId=teacherid)
             if newSale.company == teacher.company:
                 newSale.bindteacher = teacher
             else:
-                raise NameError("开发人员和管理专员属于不同公司")
+                raise Exception("开发人员和管理专员属于不同公司")
             # bindteacher = request.POST.get('bindteacher', '无')
             # bindteacher = str(teacher.id)
         else:
-            bindteacher = '无'
+            # bindteacher = '无'
             newSale.bindteacher = None
         # if bindteacher.isdigit():
         #     # teacher = Teacher.objects.get(id=request.POST.get('bindteacher'))
@@ -146,10 +163,10 @@ def addSale(request):
         #     newSale.bindteacher = None
 
         #更换开发绑定的老师，将该开发所有的未提交的客户对应的老师都修改为新的老师
-        customers = newSale.customer_set.filter(Q(status=0)|Q(status=30)|Q(status=10))
-        for customer in customers:
-            customer.teacher = newSale.bindteacher
-            customer.save()
+        # customers = newSale.customer_set.filter(Q(status=0)|Q(status=30)|Q(status=10))
+        # for customer in customers:
+        #     customer.teacher = newSale.bindteacher
+        #     customer.save()
         newSale.save()
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
@@ -176,6 +193,11 @@ def addSaleGroup(request):
         department = request.POST.get('saleDepartment')
         group = request.POST.get('saleGroup')
         saleCount = request.POST.get('saleCount')
+
+        #创建一个机器人Sale给非Sale添加的客户
+        sale, created = Sale.objects.get_or_create(saleId='KF'+company+'888888')
+        sale.save()
+
         for i in range(1, int(saleCount)+1):
             if i<10:
                 index = '0' +str(i)
@@ -273,30 +295,50 @@ def saleKpiReport(request):
         startDate = datetime.date.today()
     else:
         startDate = datetime.datetime.strptime(startDate, "%Y-%m-%d").date()
-    sql = """
-        SELECT s.company, IFNULL(COUNT(c.id),0) as dcount
-        FROM  sale_sale s
-        LEFT JOIN customer_customer c ON c.sales_id = s.id and c.status = 40 and c.first_trade > '%s' and c.first_trade < '%s'
-        GROUP BY s.company
-        ORDER by dcount desc
-    """ % (startDate, endDate)
+
+    if request.user.userprofile.title.role_name in ['admin', 'ops']:
+        sql = """
+            SELECT s.company, IFNULL(COUNT(c.id),0) as dcount
+            FROM  sale_sale s
+            LEFT JOIN customer_customer c ON c.sales_id = s.id and c.status = 40 and c.first_trade > '%s' and c.first_trade < '%s'
+            GROUP BY s.company
+            ORDER by dcount desc
+        """ % (startDate, endDate)
+    else:
+        company = request.user.userprofile.company
+        sql = """
+            SELECT s.company, IFNULL(COUNT(c.id),0) as dcount
+            FROM  sale_sale s
+            LEFT JOIN customer_customer c ON c.sales_id = s.id and c.status = 40 and c.first_trade > '%s' and c.first_trade < '%s'
+            WHERE s.company = '%s'
+            GROUP BY s.company
+            ORDER by dcount desc
+        """ % (startDate, endDate,company)
+
     cursor = connection.cursor()
     cursor.execute(sql)
     companys = []
-    #不同角色看不到不同公司
-    if not request.user.userprofile.title.role_name in ['admin','ops']:
-        for row in cursor.fetchall():
-            company = {}
-            if row[0] == request.user.userprofile.company:
-                company['company'] = row[0]
-                company['dcount'] = row[1]
-                companys.append(company)
-    else:
-        for row in cursor.fetchall():
-            company = {}
-            company['company'] = row[0]
-            company['dcount'] = row[1]
-            companys.append(company)
+    # #不同角色看不到不同公司
+    # if not request.user.userprofile.title.role_name in ['admin','ops']:
+    #     for row in cursor.fetchall():
+    #         company = {}
+    #         if row[0] == request.user.userprofile.company:
+    #             company['company'] = row[0]
+    #             company['dcount'] = row[1]
+    #             companys.append(company)
+    # else:
+    for row in cursor.fetchall():
+        company = {}
+        company['company'] = row[0]
+        company['dcount'] = row[1]
+        companys.append(company)
+
+    count = 0
+    for company in companys:
+        count += 1
+        if company['company'] == '':
+            del companys[count-1]
+            break
 
     data = {
         "companys": companys,

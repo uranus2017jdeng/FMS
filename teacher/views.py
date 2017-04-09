@@ -93,29 +93,46 @@ def addTeacher(request):
             newTeacher.teacherId = request.POST['teacherid']
 
         # binduserid = request.POST.get('binduser', '无')
-        if request.POST.get('bindusername', '无'):
-            if User.objects.get(username=request.POST.get('bindusername')):
-                user = User.objects.get(username=request.POST.get('bindusername'))
-                binduserid = str(user.id)
-        else:
-            binduserid = '无'
-
-        if binduserid.isdigit():
+        bindusername = request.POST.get('bindusername', '')
+        if bindusername:
             try:
-                oldTeacher = Teacher.objects.get(binduser_id=binduserid)
-                oldTeacher.binduser = None
-                oldTeacher.save()
+                if User.objects.get(username=bindusername):
+                    user = User.objects.get(username=bindusername)
+                    try:
+                        oldTeacher = Teacher.objects.get(binduser_id=str(user.id))
+                        oldTeacher.binduser_id = None
+                        oldTeacher.save()
+                    except Exception as e:
+                        pass
+                    if newTeacher.company == user.userprofile.company:
+                        newTeacher.binduser = user
+                    else:
+                        raise Exception("管理与用户不属于同一公司")
+                    # binduserid = str(user.id)
             except Exception as e:
-                # print(e.message)
-                # print(e.__str__())
-                pass
-            newTeacher.binduser = User.objects.get(id=binduserid)
+            #     print e.__str__()
+                raise Exception(" 用户不存在")
         else:
+            # binduserid = '无'
             newTeacher.binduser = None
+        # if binduserid.isdigit():
+        #     try:
+        #         oldTeacher = Teacher.objects.get(binduser_id=binduserid)
+        #         oldTeacher.binduser = None
+        #         oldTeacher.save()
+        #     except Exception as e:
+        #         # print(e.message)
+        #         # print(e.__str__())
+        #         pass
+        #     if newTeacher.company == user.userprofile.company:
+        #         newTeacher.binduser = user
+        #     else:
+        #         raise Exception("管理与用户不属于同一公司")
+        # else:
+        #     newTeacher.binduser = None
 
 
         # bindbursarid = request.POST.get('bindbursar', '无')
-        a = request.POST.get("bindbursarId")
 
         if request.POST.get('bindbursarId', '无'):
             if Bursar.objects.get(bursarId=request.POST.get('bindbursarId')):
@@ -139,11 +156,12 @@ def addTeacher(request):
         for customer in customers:
             customer.bursar = newTeacher.bindbursar
             customer.save()
-        bindspotteacherid = request.POST.get('bindspotteacher', '无')
-        if bindspotteacherid.isdigit():
-            newTeacher.bindspotteacher = SpotTeacher.objects.get(id=bindspotteacherid)
-        else:
-            newTeacher.bindspotteacher = None
+
+        # bindspotteacherid = request.POST.get('bindspotteacher', '无')
+        # if bindspotteacherid.isdigit():
+        #     newTeacher.bindspotteacher = SpotTeacher.objects.get(id=bindspotteacherid)
+        # else:
+        #     newTeacher.bindspotteacher = None
         newTeacher.save()
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"

@@ -31,7 +31,8 @@ def tradeManage(request):
         return HttpResponseRedirect("/")
     customerId = request.GET.get("customerId")
     customer = Customer.objects.get(id=customerId)
-    bursars = Bursar.objects.all().order_by("bursarId")
+    # bursars = Bursar.objects.all().order_by("bursarId")
+    bursars = Bursar.objects.filter(company=request.user.userprofile.company)
 
     # bursarId = []
     # bursarNick = []
