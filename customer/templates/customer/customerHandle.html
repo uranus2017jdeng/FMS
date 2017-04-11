@@ -643,6 +643,7 @@
                     function(result) {
                         showMsgModal(result.msg, result.msgLevel);
                         loadCustomerHandleDiv();
+                        resetFormValidator();
                     },
                     'json'
                 );
@@ -694,7 +695,7 @@
             },
             submitHandler: function (validator, form, submitButton) {
                 loadCustomerHandleDiv(form.serialize());
-                resetFormValidator()
+                resetFormValidator();
             }
         });
         $('#addTeacherCustomerForm').bootstrapValidator({
