@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% block title %}用户信息{% endblock %}
 {% block content %}
-
+<meta http-equiv="pragma" content="no-cache" />
 <ul class="nav nav-tabs">
     <li class="active">
         <a href="#userInfoTab" data-toggle="tab">用户信息</a>
@@ -21,6 +21,11 @@
                 <tr><td>职位</td><td>{{ request.user.userprofile.title.role_desc }}</td></tr>
                 <tr><td>姓名</td><td>{{ request.user.userprofile.nick }}</td></tr>
                 <tr><td>身份证</td><td>{{ request.user.userprofile.cid }}</td></tr>
+                {% if teacher %}
+{#                   <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="upload/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>#}
+                    <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="/static/trade/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>
+                {% endif %}
+
             </table>
         </div>
     </div>

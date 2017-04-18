@@ -80,9 +80,10 @@
                             </div>
                         </div>
 {#                        <input type="hidden" value=" " class="" id="teachcardid" name="teachercardid"/>#}
-                        <label class="col-md-offset-1 col-md-3 control-label" for="file">二维码信息</label>
-                        <div class="form-inline col-md-4" >
-                               <input name="file" id="cardfile" type="file"  class="btn btn-sm btn-default"  required/>
+                        <div class="form-group">
+                           <label class="col-md-offset-2 col-md-2 control-label" for="file">个人名片</label>
+                           <div class="form-inline col-md-4" >
+                                 <input name="file" id="cardfile" type="file"  class="btn btn-sm btn-default" />
 {#                                <script type="text/javascript">#}
 {#                                     var maxsize = 100*1024;//100K#}
 {#                                     var errMsg = "上传文件超过100K,请重新上传！！！";#}
@@ -128,10 +129,11 @@
 {#                                         }#}
 {#                                     }#}
 {#                                </script>#}
+                            </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-offset-3" style="color: red; font-size: 10px">(温馨提示：文件大小100K以内，格式：png或jpg)</label>
-                        </div>
+{#                        <div class="form-group">#}
+{#                            <label class="col-md-offset-3" style="color: red; font-size: 10px">(温馨提示：文件大小100K以内，格式：png或jpg)</label>#}
+{#                        </div>#}
                         <div class="modal-footer">
                             <div class="form-group">
                                 <div class="col-md-5 col-md-offset-3">
@@ -262,16 +264,34 @@
                 },
             },
             submitHandler: function (validator, form, submitButton) {
-                $.post(
-                    "{% url 'teacher:addTeacher' %}",
-                    form.serialize(),
-                    function(result) {
-                        showMsgModal(result.msg, result.msgLevel);
-                        data = 'page='+$('#page').val();
-                        loadTeacherDiv(data);
-                    },
-                    'json'
-                );
+                var formData = new FormData($('#addTeacherForm')[0]);
+                $.ajax({
+                     url:"{% url 'teacher:addTeacher' %}",
+                     type:'POST',
+                     dataType:'json',
+                     success: function (result) {
+                        showMsgModal(result.msg,result.msgLevel);
+                         data = 'page='+$('#page').val();
+                         loadTeacherDiv(data);
+{#                        if (result.msgLevel == 'info'){#}
+{#                           setTimeout("window.location.reload()",1500);#}
+{#                        }#}
+                     },
+                     data:formData,
+                     cache:false,
+                     contentType:false,
+                     processData:false
+                });
+{#                $.post(#}
+{#                    "{% url 'teacher:addTeacher' %}",#}
+{#                    form.serialize(),#}
+{#                    function(result) {#}
+{#                        showMsgModal(result.msg, result.msgLevel);#}
+{#                        data = 'page='+$('#page').val();#}
+{#                        loadTeacherDiv(data);#}
+{#                    },#}
+{#                    'json'#}
+{#                );#}
                 $('#addTeacherModal').modal('hide');
             }
         });

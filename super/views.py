@@ -19,7 +19,7 @@ import json
 
 from shande.settings import BASE_DIR
 from super.models import *
-# from teacher.models import *
+from teacher.models import *
 # from trade.models import *
 # from customer.models import *
 
@@ -147,6 +147,9 @@ def wap(request):
 
 @login_required()
 def userInfo(request):
+    if request.user.userprofile.title.role_name == 'teacher':
+        teacher = Teacher.objects.get(binduser=request.user)
+
     return render(request, 'super/userInfo.html', locals())
 
 def modifyPassword(request):

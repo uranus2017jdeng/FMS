@@ -13,7 +13,7 @@ import datetime
 import traceback
 import json
 
-from shande.settings import BASE_DIR
+from shande.settings import BASE_DIR, UPLOAD_ROOT
 from shande.util import *
 from ops.models import *
 from super.models import *
@@ -90,7 +90,8 @@ def addTeacher(request):
             newTeacher = Teacher.objects.create(teacherId=request.POST['teacherid'])
         else:
             newTeacher = Teacher.objects.get(id=request.POST['id'])
-            newTeacher.teacherId = request.POST['teacherid']
+            teacherid = request.POST['teacherid']
+            newTeacher.teacherId = teacherid
 
         # binduserid = request.POST.get('binduser', '无')
         bindusername = request.POST.get('bindusername', '')
@@ -162,6 +163,26 @@ def addTeacher(request):
         #     newTeacher.bindspotteacher = SpotTeacher.objects.get(id=bindspotteacherid)
         # else:
         #     newTeacher.bindspotteacher = None
+
+        try:
+            #上传二维码
+            cardfile = request.FILES['file']
+
+            filename = str(teacherid)+'.jpg'
+            jpgfile = os.path.join(UPLOAD_ROOT, "teacher/images/")+filename
+            # jpgfile = "teacher/static/teacher/images/"+filename
+            #如果存在先删除
+            if os.path.isfile(jpgfile):
+               os.remove(jpgfile)
+
+            file = open(jpgfile, "wb+")
+
+            for chunk in cardfile.chunks():
+               file.write(chunk)
+            file.close()
+        except Exception as e:
+            pass
+
         newTeacher.save()
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
