@@ -186,7 +186,7 @@
                     form.serialize(),
                     function(result) {
                         showMsgModal(result.msg, result.msgLevel);
-                        data = 'page='+$('#page').val();
+                        data = 'page='+$('#page').val()+'msg=true';
                         searchData = $('#searchSaleForm').serialize();
                         var arr = new Array(2);
                         arr[0] = data;
