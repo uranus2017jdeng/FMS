@@ -38,7 +38,7 @@ def querySale(request):
     #查看权限：admin ops saleboss
     # t1 = time.clock()
     if(request.GET.get('saleid') or request.GET.get('department')
-       or request.GET.get('binduser') or request.GET.get('bindteacher')):
+       or request.GET.get('binduser') or request.GET.get('bindteacher') or request.GET.get('msg')):
        sales = Sale.objects.all().order_by('saleId')
        #不同的用户看到不同的列表
        if request.user.userprofile.title.role_name == 'saleboss':

@@ -22,8 +22,8 @@
                 <tr><td>姓名</td><td>{{ request.user.userprofile.nick }}</td></tr>
                 <tr><td>身份证</td><td>{{ request.user.userprofile.cid }}</td></tr>
                 {% if teacher %}
-{#                   <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="upload/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>#}
-                    <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="/static/trade/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>
+                   <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="upload/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>
+{#                    <tr><td>个人名片</td><td><div style="text-align: center; width: 80px; height: 80px"> <img src="/static/teacher/images/{{ teacher.teacherId }}.jpg" style="width: 80px; height: 80px max-width: 100%; max-height: 100%"/></div></td></tr>#}
                 {% endif %}
 
             </table>

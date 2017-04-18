@@ -94,13 +94,13 @@
                         <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="saleGroup" >开发组</label>
                             <div class="col-md-5">
-                                <input type="text" class="form-control" id="saleGroup" name="saleGroup"/>
+                                <input type="text" class="form-control" id="saleGroup" name="saleGroup" placeholder="格式：01"/>
                             </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="saleDepartment" >开发部门</label>
                             <div class="col-md-5">
-                                <input type="text" class="form-control" id="saleDepartment" name="saleDepartment"/>
+                                <input type="text" class="form-control" id="saleDepartment" name="saleDepartment" placeholder="格式：01"/>
                             </div>
                         </div>
                         <div class="form-group">
@@ -186,7 +186,7 @@
                     form.serialize(),
                     function(result) {
                         showMsgModal(result.msg, result.msgLevel);
-                        data = 'page='+$('#page').val()+'msg=true';
+                        data = 'page='+$('#page').val();
                         searchData = $('#searchSaleForm').serialize();
                         var arr = new Array(2);
                         arr[0] = data;
@@ -236,7 +236,8 @@
                     form.serialize(),
                     function(result) {
                         showMsgModal(result.msg, result.msgLevel);
-                        loadSaleDiv();
+                        data = 'msg=true';
+                        loadSaleDiv(data);
                     },
                     'json'
                 );
@@ -276,7 +277,8 @@
                 {id:id},
                 function(result) {
                     showMsgModal(result.msg, result.msgLevel);
-                    loadSaleDiv();
+                    data = 'msg=true';
+                    loadSaleDiv(data);
                 },
                 'json'
             );
