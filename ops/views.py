@@ -53,8 +53,13 @@ def addUser(request):
         newUser.userprofile.nick = request.POST['nick']
         newUser.userprofile.cid = request.POST['cid']
         newUser.userprofile.company = request.POST['company']
-        newUser.userprofile.department = request.POST['department']
-        newUser.userprofile.group = request.POST['group']
+        #这里做了name区分并非多此一举，是因为要满足在html中要对这个字段分角色 做输入校验 的需求
+        if(int(request.POST['title']) == 4 or int(request.POST['title']) == 6):
+            newUser.userprofile.department = request.POST['roleDiv1department']
+            newUser.userprofile.group = request.POST['roleDiv1group']
+        else:
+            newUser.userprofile.department = request.POST['roleDiv2department']
+            newUser.userprofile.group = request.POST['roleDiv2group']
         newUser.userprofile.faillocktime = None
         newUser.save()
         newUser.userprofile.save()

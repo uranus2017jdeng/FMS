@@ -172,8 +172,10 @@ def addCustomer(request):
             newCustomer.realuser = sale.binduser
             teachers = Teacher.objects.filter(binduser__isnull=False, company=request.user.userprofile.company).order_by('customercount')
             for teacher in teachers:
+                print(teacher.customercount)
                 newCustomer.teacher = teacher
                 teacher.customercount += 1
+
                 # teacher.save()
                 break
 

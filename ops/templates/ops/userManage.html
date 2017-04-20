@@ -54,17 +54,33 @@
                                 />
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-offset-2 col-md-2 control-label" for="department" >部门</label>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" id="department" name="department"/>
-                            </div>
+                        <div id="roleDiv1" style="display:none">
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv1department" >部门</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="roleDiv1department" name="roleDiv1department" placeholder="格式：1"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv1group" >组</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="roleDiv1group" name="roleDiv1group" placeholder="格式：01"/>
+                              </div>
+                          </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-offset-2 col-md-2 control-label" for="group" >组</label>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" id="group" name="group"/>
-                            </div>
+                        <div id="roleDiv2">
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv2department" >部门</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="roleDiv2department" name="roleDiv2department"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv2group" >组</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="roleDiv2group" name="roleDiv2group"/>
+                              </div>
+                          </div>
                         </div>
                         <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="title" >职位</label>
@@ -96,6 +112,19 @@
 
                             </div>
                         </div>
+                        <script type="text/javascript">
+                            $('#title').on('change', function(){
+                                if($(this).val() == '4' || $(this).val() == '6'){
+                                    $('#roleDiv1').show();
+                                    $('#roleDiv2').hide();
+
+                                }else {
+                                    $('#roleDiv1').hide();
+                                    $('#roleDiv2').show();
+                                }
+                                $('#addUserForm').data('bootstrapValidator').disableSubmitButtons(false);
+                            });
+                        </script>
                         <div class="modal-footer">
                             <div class="form-group">
                                 <div class="col-md-5 col-md-offset-3">
@@ -159,19 +188,35 @@
 {#                                />#}
                             </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-offset-2 col-md-2 control-label" for="department" >部门</label>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" id="edepartment" name="department"/>
-                            </div>
+                        <div id="eroleDiv1" style="display:none">
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv1department" >部门</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="eroleDiv1department" name="roleDiv1department" placeholder="格式：1"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv1group" >组</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="eroleDiv1group" name="roleDiv1group" placeholder="格式：01"/>
+                              </div>
+                          </div>
                         </div>
-                        <div class="form-group">
-                            <label class="col-md-offset-2 col-md-2 control-label" for="group" >组</label>
-                            <div class="col-md-5">
-                                <input type="text" class="form-control" id="egroup" name="group"/>
-                            </div>
+                        <div id="eroleDiv2">
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv2department" >部门</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="eroleDiv2department" name="roleDiv2department"/>
+                              </div>
+                          </div>
+                          <div class="form-group">
+                              <label class="col-md-offset-2 col-md-2 control-label" for="roleDiv2group" >组</label>
+                              <div class="col-md-5">
+                                  <input type="text" class="form-control" id="eroleDiv2group" name="roleDiv2group"/>
+                              </div>
+                          </div>
                         </div>
-                        <div class="form-group">
+                       <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="title" >职位</label>
                             <div class="col-md-5">
                                 <select type="select" class="form-control" id="etitle" name="title">
@@ -198,9 +243,21 @@
                                         <option value="8"> 客户管理总经理</option>
                                     {% endif %}
                                 </select>
-
                             </div>
                         </div>
+                        <script type="text/javascript">
+                            $('#etitle').on('change', function(){
+                                if($(this).val() == '4' || $(this).val() == '6'){
+                                    $('#eroleDiv1').show();
+                                    $('#eroleDiv2').hide();
+
+                                }else {
+                                    $('#eroleDiv1').hide();
+                                    $('#eroleDiv2').show();
+                                }
+                                $('#editUserForm').data('bootstrapValidator').disableSubmitButtons(false);
+                            });
+                        </script>
                         <div class="modal-footer">
                             <div class="form-group">
                                 <div class="col-md-5 col-md-offset-3">
@@ -251,80 +308,96 @@
         $('#userDiv').load("{% url 'ops:queryUser' %}", data);
     }
     function formValidator(){
-        $('#addUserForm').bootstrapValidator({
-            excluded: [':disabled'],
-            message: 'This value is not valid',
-            feedbackIcons: {
-                valid: 'glyphicon glyphicon-ok',
-                invalid: 'glyphicon glyphicon-remove',
-                validating: 'glyphicon glyphicon-refresh'
-            },
-            fields: {
-                username: {
-                    validators: {
-                        notEmpty: {
-                            message: '请输入用户ID'
-                        },
-                        remote: {
-                            message: 'ID已存在,请手动编辑',
-                            url: '{% url "ops:checkUserId" %}',
-                        }
+           $('#addUserForm').bootstrapValidator({
+{#                excluded: [':disabled'],#}
+                exclude: [':not(visible)'],
+                message: 'This value is not valid',
+                feedbackIcons: {
+                    valid: 'glyphicon glyphicon-ok',
+                    invalid: 'glyphicon glyphicon-remove',
+                    validating: 'glyphicon glyphicon-refresh'
+                },
+                fields: {
+                    username: {
+                        validators: {
+                            notEmpty: {
+                                message: '请输入用户ID'
+                            },
+                            remote: {
+                                message: 'ID已存在,请手动编辑',
+                                url: '{% url "ops:checkUserId" %}',
+                            }
 
-                    }
-                },
-                nick: {
-                    validators: {
-                        notEmpty: {
-                            message: '请输入用户姓名'
                         }
-                    }
-                },
-                cid: {
-                    validators: {
-                        notEmpty: {
-                            message: '请输入身份证号',
-                        },
-                        regexp: {
-                            regexp: "^[0-9|x|X]{18}$",
-                            message: "请输入正确的18位身份证号"
-                        },
-                        remote: {
-                            message: '身份证号已存在',
-                            url: '{% url "ops:checkCId" %}',
-                        }
-                    }
-                },
-                company: {
-                    validators: {
-                        notEmpty: {
-                            message: '公司代码不能为空',
-                        },
-                        stringLength: {
-                            max: 1,
-                            message: "公司代码只包含一个字符"
-                        },
-                        regexp: {
-                            regexp: "^[A-Z]$",
-                            message: "公司代码必须为大写字母"
-                        },
-                    }
-                }
-            },
-            submitHandler: function (validator, form, submitButton) {
-
-                $('#addUserModal').modal('hide');
-                $.post(
-                    "{% url 'ops:addUser' %}",
-                    form.serialize(),
-                    function(result) {
-                        showMsgModal(result.msg, result.msgLevel);
-                        data = 'page='+$('#page').val()+'&msg=true';
-                        loadUserDiv(data);
                     },
-                    'json'
-                );
-            }
-        });
+                    nick: {
+                        validators: {
+                            notEmpty: {
+                                message: '请输入用户姓名'
+                            }
+                        }
+                    },
+                    cid: {
+                        validators: {
+                            notEmpty: {
+                                message: '请输入身份证号',
+                            },
+                            regexp: {
+                                regexp: "^[0-9|x|X]{18}$",
+                                message: "请输入正确的18位身份证号"
+                            },
+                            remote: {
+                                message: '身份证号已存在',
+                                url: '{% url "ops:checkCId" %}',
+                            }
+                        }
+                    },
+                    company: {
+                        validators: {
+                            notEmpty: {
+                                message: '公司代码不能为空',
+                            },
+                            stringLength: {
+                                max: 1,
+                                message: "公司代码只包含一个字符"
+                            },
+                            regexp: {
+                                regexp: "^[A-Z]$",
+                                message: "公司代码必须为大写字母"
+                            },
+                        }
+                    },
+                    roleDiv1department:{
+                        validators:{
+                            notEmpty:{message: '部门代码不能为空'},
+                            stringLength:{max:1,message:'部门代码只包含一个数字'},
+                            regexp:{regexp:"^[1-9]$", message:'部门代码1-9'},
+                        }
+                    },
+                    roleDiv1group:{
+                        validators:{
+                            notEmpty:{message:'组代码不能为空'},
+                            stringLength:{min:2,max:2,message:'组代码为2位数字'},
+                            regexp:{regexp:"^[0-9]{2}$", message:'组代码为数字'},
+                        }
+                    },
+                },
+                submitHandler: function (validator, form, submitButton) {
+
+                    $('#addUserModal').modal('hide');
+                    $.post(
+                        "{% url 'ops:addUser' %}",
+                        form.serialize(),
+                        function(result) {
+                            showMsgModal(result.msg, result.msgLevel);
+                            data = 'page='+$('#page').val()+'&msg=true';
+                            loadUserDiv(data);
+                        },
+                        'json'
+                    );
+                }
+           });
+
         $('#editUserForm').bootstrapValidator({
             excluded: [':disabled'],
             message: 'This value is not valid',
@@ -411,9 +484,19 @@
         $('#enick').val($(obj).data("nick"));
         $('#ecid').val($(obj).data("cid"));
         $('#ecompany').val($(obj).data("company"));
-        $('#edepartment').val($(obj).data("department"));
-        $('#egroup').val($(obj).data("group"));
         $('#etitle').val($(obj).data("titleid"));
+        $('#eroleDiv1department').val($(obj).data("department"));
+        $('#eroleDiv1group').val($(obj).data("group"));
+        $('#eroleDiv2department').val($(obj).data("department"));
+        $('#eroleDiv2group').val($(obj).data("group"));
+{#        if($(obj).data("titleid") == '4' || $(obj).data("titleid") == '6' ){#}
+{#            $('#eroleDiv1department').val($(obj).data("department"));#}
+{#            $('#eroleDiv1group').val($(obj).data("group"));#}
+{#        }#}
+{#        else{#}
+{#            $('#eroleDiv2department').val($(obj).data("department"));#}
+{#            $('#eroleDiv2group').val($(obj).data("group"));#}
+{#        }#}
         $('#editUserModal').modal("show");
     }
     function delUser(obj){

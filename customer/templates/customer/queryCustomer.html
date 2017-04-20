@@ -1,13 +1,31 @@
 {% load customer_tags %}
+<script style="text/javascript">
+
+    function picshow(obj){
+        var customerid = $(obj).data("id")
+        $("#img_"+customerid).show(500);
+        $("#img_"+customerid).click(function () {
+            $(this).hide(500);
+        })
+    }
+</script>
+<div class="modal fade" id="showMsgModal"  tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+            <div class="modal-body">
+                <div style="text-align: center; width: 540px; height: 360px"> <img id="imgid" src=" " style="width: auto; height: auto; max-width: 100%; max-height: 100%"/></div>
+            </div>
+    </div>
+</div>
 <table class="table table-bordered col-md-12 table-hover" style="padding: 0px; margin: 0px">
     <thead class="bg-info" style="padding: 0">
         <tr>
 {#            <td>ID</td>#}
             <td>序号</td>
             <td>时间</td><!-- 首次交易时间 -->
-            <td>开发ID</td>
-            {% if request.user.userprofile.title.role_name == 'saleboss' or  request.user.userprofile.title.role_name in 'admin ops' %}
-            <td>对接老师</td>
+            <td>客户开发专员ID</td>
+            {% if request.user.userprofile.title.role_name == 'saleboss' or  request.user.userprofile.title.role_name in 'admin ops sale' %}
+                <td>客户管理专员ID</td>
+{#                <td>管理专员SQR</td>#}
             {% endif %}
             <td>来源工具</td>
 {#            <td>来源微信</td>#}
@@ -16,6 +34,7 @@
             <td>电话</td>
             <td>沟通方式</td>
             <td>昵称</td>
+{#            <td>管理ID</td>#}
 {#            <td>微信号</td>#}
 {#            <td>微信昵称</td>#}
 {#            <td>QQ号</td>#}
@@ -34,7 +53,7 @@
     <tbody>
     {% if customerPage %}
     {% for customerObj in customerPage %}
-        <tr>
+        <tr >
 {#            <td>{{ customerObj.id }}</td>#}
             <td>{{ forloop.counter }}</td>
             <td>
@@ -49,8 +68,24 @@
             <script type="text/javascript">
                 $('.tooltips').tooltip();
             </script>
-            {% if request.user.userprofile.title.role_name == 'saleboss' or  request.user.userprofile.title.role_name in 'admin ops'%}
-            <td>{{ customerObj.teacher.teacherId }} {{ customerObj.teacher.binduser.userprofile.nick }}</td>
+            {% if request.user.userprofile.title.role_name == 'saleboss' or  request.user.userprofile.title.role_name in 'admin ops sale'%}
+{#                 <td>#}
+{#                   <span> <img class="tooltip" data-toggle="tooltip"  src="/static/teacher/images/GLA010101.jpg"#}
+{#                           style="cursor: pointer; width: 40px; height: 40px;">#}
+{##}
+{#                   </span>#}
+{##}
+{#                   <script type="text/javascript">#}
+{#                     $('.tooltips').tooltip();#}
+{#                   </script>#}
+{##}
+{#                 </td>#}
+                <td><div><span onclick="picshow(this)" data-id="{{ customerObj.id }}">{{ customerObj.teacher.teacherId }}</span>
+                    <span><img id="img_{{ customerObj.id }}" src="../upload/teacher/images/{{ customerObj.teacher.teacherId }}.jpg"
+                           style="cursor: pointer; width: 40px; height: 40px; display: none"></span></div></td>
+{#                <td><span><img src="/static/teacher/images/GLA010101.jpg"#}
+{#                           onclick="this.style.zoom='2'" ondblclick="this.style.zoom='1'"#}
+{#                           style="cursor: pointer; width: 40px; height: 40px"></span></td>#}
             {% endif %}
             <td>
                 {% if customerObj.saleswx %} 微信: {{ customerObj.saleswx.wxid | mask8 }}{% endif %}
@@ -94,6 +129,11 @@
                     <span class="glyphicon glyphicon-remove"></span>
                 {% endif %}
             </td>
+{#            {% if request.user.userprofile.title.role_name == 'sale' %}#}
+{#                <td><div><span onclick="picshow(this)" data-id="{{ customerObj.id }}">{{ customerObj.teacher.teacherId }}</span>#}
+{#                    <span><img id="img_{{ customerObj.id }}" src="../upload/teacher/images/{{ customerObj.teacher.teacherId }}.jpg"#}
+{#                           style="cursor: pointer; width: 40px; height: 40px; display: none"></span></div></td>#}
+{#            {% endif %}#}
             <td>
                 {% if customerObj.status == 0 %}
                     <span class="label label-success">&gt;</span> 待客户加客户专员
