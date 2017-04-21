@@ -17,7 +17,7 @@ import datetime
 import traceback
 import json
 
-from shande.settings import BASE_DIR
+from shande.settings import BASE_DIR,UPLOAD_ROOT
 from super.models import *
 from teacher.models import *
 # from trade.models import *
@@ -270,7 +270,10 @@ def logoUpload(request):
     data = {}
     try:
         logofile = request.FILES['file']
-        file = open("super/static/super/images/header.jpg", "wb+")
+        # file = open("super/static/super/images/header.jpg", "wb+")
+        # file = open("super/static/super/images/header.jpg", "wb+")
+        jpgfile = os.path.join(UPLOAD_ROOT, "/images/header.jpg")
+        file = open(jpgfile,"wb+")
         for chunk in logofile.chunks():
             file.write(chunk)
         file.close()

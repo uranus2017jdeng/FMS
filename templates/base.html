@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="zh-CN">
-<meta HTTP-EQUIV="pragma" CONTENT="no-cache">
-<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">
-<meta HTTP-EQUIV="expires" CONTENT="0">
+{#<meta HTTP-EQUIV="pragma" CONTENT="no-cache">#}
+{#<meta HTTP-EQUIV="Cache-Control" CONTENT="no-cache, must-revalidate">#}
+{#<meta HTTP-EQUIV="expires" CONTENT="0">#}
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}默认标题{% endblock %} - 智库科技</title>
@@ -15,8 +15,16 @@
 {% include 'nav.html' %}
 <div class="bs-docs-header" style="padding:0;">
     <div class="body-container">
-        <img class="header_img" src="/static/super/images/header.jpg"/>
+        <img id="headerimg" class="header_img" src="upload/super/images/header.jpg?javascript:Math_random()"/>
     </div>
+{#    <script type="text/javascript">#}
+{#    $(function () {#}
+{#        $("#headerimg").attr("src", "/static/super/images/header.jpg?t=" + Math.random());#}
+{#          $("#headerimg").attr("src", "upload/super/images/header.jpg?t=" + Math.random());#}
+{#        alert($("#headerimg").attr("src"));#}
+{#      }#}
+{#    );#}
+{#    </script>#}
 </div>
 <div class="container bs-docs-container" >
     <div class="row">
