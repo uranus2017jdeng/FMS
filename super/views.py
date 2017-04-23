@@ -4,11 +4,13 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate, login, logout
 from django.contrib.auth.decorators import login_required
+from django.contrib import admin
 
 from PIL import Image, ImageDraw, ImageFont
 import os
 import random
 import string
+import time
 try:
     from cStringIO import StringIO
 except ImportError:
@@ -27,6 +29,14 @@ from teacher.models import *
 # Create your views here.
 def index(request):
     if request.user.is_authenticated():
+        birthday = time.strftime('%m%d', time.localtime(time.time()))
+        print(birthday)
+        birthday='0427'
+        users = User.objects.filter(userprofile__cid__contains=birthday)
+        for user in users:
+            if user.userprofile.cid[10:14] != birthday:
+                users = users.exclude(user=user)
+
         return render(request, 'super/index.html', locals())
     else:
         redirect_to = 'accounts/login/'
@@ -315,3 +325,11 @@ def newsPush(request):
         return render(request, 'ops/systemLog.html')
     else:
         return HttpResponseRedirect("/")
+
+# @login_required()
+# def adminMange(request):
+#     if (request.user.userprofile.title.role_name == 'admin'):
+#         print(admin.site.urls)
+#         return render(request, admin.site.urls)
+#     else:
+#         return HttpResponseRedirect("/")
