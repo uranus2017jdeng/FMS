@@ -16,10 +16,12 @@ except ImportError:
 import datetime
 import traceback
 import json
+import time
 
 from shande.settings import BASE_DIR,UPLOAD_ROOT
 from super.models import *
 from teacher.models import *
+
 # from trade.models import *
 # from customer.models import *
 
@@ -27,6 +29,18 @@ from teacher.models import *
 # Create your views here.
 def index(request):
     if request.user.is_authenticated():
+        birthday = time.strftime('%m%d',time.localtime(time.time()))
+
+        users = User.objects.filter(userprofile__cid__contains=birthday)
+
+        for birthdayuser in users:
+            if birthdayuser.userprofile.cid[10:14] != birthday:
+                users = users.exclude(user=birthdayuser)
+
+        if users.count():
+            showContent = 'true'
+            showContent = json.dumps(showContent)
+
         return render(request, 'super/index.html', locals())
     else:
         redirect_to = 'accounts/login/'
@@ -307,7 +321,16 @@ def getTransmission(request):
     return HttpResponse(json.dumps(data))
 
 def demo(request):
-    return render(request, 'super/demo.html', locals())
+    if request.user.is_authenticated():
+        birthday = time.strftime('%m%d',time.localtime(time.time()))
+        users = User.objects.filter(userprofile__cid__contains=birthday)
+        for birthdayuser in users:
+            if birthdayuser.userprofile.cid[10:14] != birthday:
+                users = users.exclude(user=birthdayuser)
+        return render(request, 'super/demo.html', locals())
+    else:
+        redirect_to = 'accounts/login/'
+        return HttpResponseRedirect(redirect_to)
 
 @login_required()
 def newsPush(request):
@@ -315,3 +338,29 @@ def newsPush(request):
         return render(request, 'ops/systemLog.html')
     else:
         return HttpResponseRedirect("/")
+
+@login_required()
+def birthdayNote(request):
+    data = {
+    }
+    if request.user.is_authenticated():
+        birthday = time.strftime('%m%d',time.localtime(time.time()))
+        users = User.objects.filter(userprofile__cid__contains=birthday)
+        for birthdayuser in users:
+            if birthdayuser.userprofile.cid[10:14] != birthday:
+                users = users.exclude(user=birthdayuser)
+
+        if users.count():
+            showContent = 'true'
+            showContent = json.dumps(showContent)
+
+        data = {
+            'showContent': showContent,
+            'users': users,
+        }
+
+
+        return render(request, 'super/birthdayNote.html', data)
+    else:
+        redirect_to = 'accounts/login/'
+        return HttpResponseRedirect(redirect_to)

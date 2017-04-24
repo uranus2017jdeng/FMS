@@ -1,4 +1,5 @@
-
+<!DOCTYPE html>
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>{% block title %}默认标题{% endblock %} - 智库科技</title>
@@ -8,12 +9,11 @@
 </head>
 
 <body>
-
-<div class="bs-docs-header" style="padding:0; max-height: 150px">
+  <div class="bs-docs-header" style="padding:0; max-height: 150px">
     <div class="body-container">
         <img style="max-height: 150px" id="headerimg" class="header_img" src="static/super/images/header.jpg?t=javascript:Math.random()"/>
     </div>
-</div>
+  </div>
 </body>
 
 {% block content %}
@@ -60,20 +60,14 @@
        <p align="center">大千世界，多一人牵挂是一种幸福</p>
        <p align="center">茫茫人海，多一人相知识一种骄傲</p>
        <p align="center">人生旅途，多一人相伴是一种福气</p>
-       <p align="center">红尘多扰，对一份祝福是一种慰藉</p>
+       <p align="center">红尘多扰，多一份祝福是一种慰藉</p>
        <p align="center">祝：&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
        </p>
-{#    <p align="center">祝：#}
-{#        {% for birthdayuser in users %}#}
-{#            {{ birthdayuser.userprofile.department }}部 &nbsp; {{ birthdayuser.userprofile.nick }}#}
-{#        {% endfor %}#}
-{#    </p>#}
 
 
     <div class="panel">
-{#        <h2>生日快乐</h2>#}
         <div class="activity" id="J_Activity">
             <ul>
                 {% for birthdayuser in users %}
@@ -89,21 +83,6 @@
 
 
    </div>
-
-{##}
-{#    <div>#}
-{#      <h1>#}
-{#          <br/>#}
-{#          <div class="alert alert-info" style="text-align:center">#}
-{#              欢迎使用业务管理系统#}
-{#          </div>#}
-{#      </h1>#}
-{##}
-{#      {% if not request.user.is_authenticated %}#}
-{##}
-{#          <pre>请使用右上角的登陆按钮登陆管理系统</pre>#}
-{#      {% endif %}#}
-{#    </div>#}
 
     <script type="text/javascript" charset="utf-8">
     $(function () {
@@ -122,3 +101,4 @@
     });
     </script>
 {% endblock %}
+</html>
