@@ -11,7 +11,11 @@
                 <span class="icon-bar"></span>
                 <span class="icon-bar"></span>
             </button>
-            <a class="navbar-brand" href="/">业务管理系统</a>
+            {% if user.userprofile.title.role_name in  'admin'  %}
+               <a class="navbar-brand" href="/admin">业务管理系统</a>
+            {% else %}
+                <a class="navbar-brand" href="/">业务管理系统</a>
+            {% endif %}
         </div>
 
         <!-- Collect the nav links, forms, and other content for toggling -->
@@ -24,7 +28,8 @@
                         <ul class="dropdown-menu">
                             <li class=""><a href="{% url 'super:titleManage' %}" target="_self">职位管理</a></li>
                             <li class=""><a href="{% url 'super:logoManage' %}" target="_self">Logo图片管理</a></li>
-                            <li class=""><a href="{% url 'super:newsPush' %}" target="_self">消息发布</a></li>
+{#                            <li class=""><a href="{% url 'super:newsPush' %}" target="_self">消息发布</a></li>#}
+{#                            <li class=""><a href="{% url 'super:adminManage' %}" target="_self">Django管理</a></li>#}
                         </ul>
                     </li>
 {#                {% endif %}#}
