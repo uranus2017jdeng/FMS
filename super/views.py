@@ -29,15 +29,39 @@ from teacher.models import *
 # Create your views here.
 def index(request):
     if request.user.is_authenticated():
-        birthday = time.strftime('%m%d',time.localtime(time.time()))
+        # birthday = time.strftime('%m-%d',time.localtime(time.time()))
+        month = time.strftime('%m',time.localtime(time.time()))
+        day = time.strftime('%d',time.localtime(time.time()))
 
-        users = User.objects.filter(userprofile__cid__contains=birthday)
+        # userprofiles = UserProfile.objects.all()
+        # for userprofile in userprofiles:
+        #     if userprofile.cid:
+        #         a = userprofile.cid
+        #         year = userprofile.cid[6:10]
+        #         month = userprofile.cid[10:12]
+        #         day = userprofile.cid[12:14]
+        #         birthday = year + '-' + month +'-'+day
+        #         userprofile.birthday = datetime.datetime.strptime(birthday,'%Y-%m-%d')
+        #         userprofile.save()
 
-        for birthdayuser in users:
-            if birthdayuser.userprofile.cid[10:14] != birthday:
-                users = users.exclude(user=birthdayuser)
 
-        if users.count():
+        userprofiles = UserProfile.objects.filter(birthday__month=month, birthday__day=day)
+
+
+        # for userprofile in userprofiles:
+        #     if userprofile.cid:
+        #         a = userprofile.cid
+        #         year = userprofile.cid[6:10]
+        #         month = userprofile.cid[10:12]
+        #         day = userprofile.cid[12:14]
+        #         birthday = year + '-' + month +'-'+day
+        #         userprofile.birthday = datetime.datetime.strptime(birthday,'%Y-%m-%d')
+        #         userprofile.save()
+
+        #       if birthdayuser.userprofile.cid[10:14] != birthday:
+        #         users = users.exclude(user=birthdayuser)
+        #
+        if userprofiles.count():
             showContent = 'true'
             showContent = json.dumps(showContent)
 
@@ -344,18 +368,14 @@ def birthdayNote(request):
     data = {
     }
     if request.user.is_authenticated():
-        birthday = time.strftime('%m%d',time.localtime(time.time()))
-        users = User.objects.filter(userprofile__cid__contains=birthday)
-        for birthdayuser in users:
-            if birthdayuser.userprofile.cid[10:14] != birthday:
-                users = users.exclude(user=birthdayuser)
 
-        if users.count():
-            showContent = 'true'
-            showContent = json.dumps(showContent)
+        month = time.strftime('%m',time.localtime(time.time()))
+        day = time.strftime('%d',time.localtime(time.time()))
+
+        # users = User.objects.filter(userprofile__cid__contains=birthday)
+        users = UserProfile.objects.filter(birthday__month=month, birthday__day=day)
 
         data = {
-            'showContent': showContent,
             'users': users,
         }
 

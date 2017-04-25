@@ -23,6 +23,7 @@ class UserProfile (models.Model):
     cid = models.CharField('身份证号', max_length=18, blank=True, null=True)
     nick = models.CharField('真实姓名', max_length=10, blank=True, null=True)
     title = models.ForeignKey(Title, null=True, on_delete=models.SET_NULL)
+    birthday = models.DateField('生日', default='0000-00-00')
     # "id","role_name","role_desc"
     # "1","admin","超级管理员"
     # "3","salemanager","客户开发经理"

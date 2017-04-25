@@ -64,7 +64,7 @@ def customerManage(request):
         "startDate": str(startDate),
         "endDate": str(endDate),
     }
-
+    print(str(startDate))
     # t2 = time.clock()
     # logger.error("customer/customerManage cost time: %f"%(t2-t1))
     return render(request, 'customer/customerManage.html', data)

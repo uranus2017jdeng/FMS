@@ -41,10 +41,12 @@ def addUser(request):
     data = {}
     try:
         if request.POST['userid'] == "":
+            birthday = request.POST['birthday']
             newUser = User.objects.create(username=request.POST['username'])
             newUser.set_password("123456")
             newUserProfile, created = UserProfile.objects.get_or_create(user=newUser,
-                                                               title=Title.objects.get(id=int(request.POST['title'])) )
+                                                               title=Title.objects.get(id=int(request.POST['title'])),
+                                                               birthday = request.POST['birthday'])
         else:
             newUser = User.objects.get(id=request.POST['userid'])
             newUser.username = request.POST['username']
@@ -53,6 +55,8 @@ def addUser(request):
         newUser.userprofile.nick = request.POST['nick']
         newUser.userprofile.cid = request.POST['cid']
         newUser.userprofile.company = request.POST['company']
+
+
         #这里做了name区分并非多此一举，是因为要满足在html中要对这个字段分角色 做输入校验 的需求
         if(int(request.POST['title']) == 4 or int(request.POST['title']) == 6):
             newUser.userprofile.department = request.POST['roleDiv1department']

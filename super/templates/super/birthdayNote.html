@@ -2,8 +2,8 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>{% block title %}默认标题{% endblock %} - 智库科技</title>
-    <meta name="description" content="{% block description %}智库科技{% endblock %}">
+    <title>生日提醒</title>
+    <meta name="description" content="{% block description %}生日提醒{% endblock %}">
     <meta name="keywords" content="{% block keywords %}shande{% endblock %}">
     {% include 'header.html' %}
 </head>
@@ -11,7 +11,8 @@
 <body>
   <div class="bs-docs-header" style="padding:0; max-height: 150px">
     <div class="body-container">
-        <img style="max-height: 150px" id="headerimg" class="header_img" src="static/super/images/header.jpg?t=javascript:Math.random()"/>
+{#        <img style="max-height: 150px" id="headerimg" class="header_img" src="static/super/images/header.jpg?t=javascript:Math.random()"/>#}
+        <img style="max-height: 150px" id="headerimg" class="header_img" src="/upload/super/images/header.jpg?t=javascript:Math_random()"/>
     </div>
   </div>
 </body>
@@ -72,7 +73,7 @@
             <ul>
                 {% for birthdayuser in users %}
                     <li>
-                        {{ birthdayuser.userprofile.department }}部 &nbsp; {{ birthdayuser.userprofile.nick }}
+                        {{ birthdayuser.department }}部 &nbsp; {{ birthdayuser.nick }}
                         生日快乐，幸福长存！
                     </li>
                 {% endfor %}

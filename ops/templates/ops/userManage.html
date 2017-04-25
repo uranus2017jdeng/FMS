@@ -45,6 +45,12 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="birthday" >生日</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="date" class="form-control" id="birthday" name="birthday"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="company" >公司</label>
                             <div class="col-md-5">
                                 <input type="text" class="form-control" id="company" name="company"
@@ -176,6 +182,12 @@
                             <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="cid" >身份证</label>
                             <div class="col-lg-5 col-md-5">
                                 <input type="text" class="form-control" id="ecid" name="cid"/>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="col-md-offset-2 col-lg-2 col-md-2 control-label" for="birthday" >生日</label>
+                            <div class="col-lg-5 col-md-5">
+                                <input type="date" class="form-control" id="ebirthday" name="birthday"/>
                             </div>
                         </div>
                         <div class="form-group">
@@ -478,6 +490,19 @@
         });
     }
     function editUser(obj){
+        var edate = $(obj).data("birthday").replace("年","-").replace("月","-").replace("日","");
+        var year = edate.split("-")[0];
+        var month = edate.split("-")[1];
+        var day = edate.split("-")[2];
+        if(month.length<2){
+            month = '0' + month;
+        }
+        if(day.length<2){
+            day = '0' + day;
+        }
+        edate = year+'-'+month+'-'+day;
+        $('#ebirthday').val(edate);
+
         $('#euserid').val($(obj).data("userid"));
         $('#epage').val($(obj).data("page"));
         $('#eusername').val($(obj).data("username"));
@@ -489,6 +514,8 @@
         $('#eroleDiv1group').val($(obj).data("group"));
         $('#eroleDiv2department').val($(obj).data("department"));
         $('#eroleDiv2group').val($(obj).data("group"));
+
+
 {#        if($(obj).data("titleid") == '4' || $(obj).data("titleid") == '6' ){#}
 {#            $('#eroleDiv1department').val($(obj).data("department"));#}
 {#            $('#eroleDiv1group').val($(obj).data("group"));#}
