@@ -158,6 +158,7 @@ def queryCustomer(request):
 def addCustomer(request):
     # t1 = time.clock()
     data = {}
+
     try:
         sale = Sale.objects.get(binduser=request.user)
         # if not sale.bindteacher.binduser:
@@ -169,14 +170,12 @@ def addCustomer(request):
 
         if request.POST['id'] == "":  #新增客户
             newCustomer = Customer.objects.create(sales=sale, create=timezone.now(), modify=timezone.now())
+            newAdd = True
             newCustomer.realuser = sale.binduser
             teachers = Teacher.objects.filter(binduser__isnull=False, company=request.user.userprofile.company).order_by('customercount')
             for teacher in teachers:
-                print(teacher.customercount)
                 newCustomer.teacher = teacher
                 teacher.customercount += 1
-
-                # teacher.save()
                 break
 
             # newCustomer.bursar = sale.bindteacher.bindbursar
@@ -185,6 +184,7 @@ def addCustomer(request):
             newCustomer.create = timezone.now()
             newCustomer.status = 0
         else:  #修改客户
+            newAdd = False
             newCustomer = Customer.objects.get(id=int(request.POST['id']))
             newCustomer.create = timezone.now()
             newCustomer.modify = timezone.now()
@@ -219,7 +219,6 @@ def addCustomer(request):
         if request.POST.get('saletool') == 'wx':
             newCustomer.wxid = request.POST.get('wxid', '')
             newCustomer.wxname = request.POST.get('wxname', '')
-            a = request.POST.get('saleswx')
             if request.POST.get('saleswx'):
                 newCustomer.saleswx = Wx.objects.get(id=int(request.POST.get('saleswx')))
         else:
@@ -230,7 +229,7 @@ def addCustomer(request):
         newCustomer.save()
 
         # 新增客户，管理处理客户数+1后保存
-        if teacher:
+        if newAdd and teacher:
             teacher.save()
 
         #开发绩效管理
@@ -255,9 +254,14 @@ def addCustomer(request):
         #     transmission.checked = False
         #     transmission.save()
 
+        #添加成功
+        newAdd = False
+
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
     except Exception as e:
+        if newAdd:
+            newCustomer.delete()
         print(e.__str__())
         if str(e.__str__()).__contains__('saleId'):
             data['msg'] = "操作失败,开发ID已存在"
@@ -339,7 +343,6 @@ def checkCustomerPhone(request):
 
     try:
         customers = Customer.objects.filter(phone=customerPhone,phone__isnull=False)
-        a = customers.__len__()
         if customers.__len__() != 0:   #手机号码重复
             for customer in customers:
                if customer.status == 98: #不诚信客户
@@ -351,7 +354,7 @@ def checkCustomerPhone(request):
                        latest = customer.latest
                        if latest:
                            deltaday = (nowtime - latest).days
-                           if deltaday < 30.0:
+                           if deltaday < 90.0:
                               valid = False
                               break
     except:
@@ -1119,6 +1122,8 @@ def addTeacherCustomer(request):
         else:
             newCustomer.qqid = request.POST.get('qqid', '')
             newCustomer.qqname = request.POST.get('qqname', '')
+
+
         newCustomer.save()
 
 
@@ -1133,6 +1138,9 @@ def addTeacherCustomer(request):
         data['msg'] = "操作成功"
         data['msgLevel'] = "info"
     except Exception as e:
+        #出错则删除创建的客户
+        newCustomer.delete()
+
         traceback.print_exc()
         if str(e.__str__()).__contains__('saleId'):
             data['msg'] = "操作失败,开发ID已存在"

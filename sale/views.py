@@ -195,8 +195,21 @@ def addSaleGroup(request):
         saleCount = request.POST.get('saleCount')
 
         #创建一个机器人Sale给非Sale添加的客户
-        sale, created = Sale.objects.get_or_create(saleId='KF'+company+'888888')
+        sale, created = Sale.objects.get_or_create(saleId='KF'+company+'888888',company=company)
         sale.save()
+
+        # #创建一个机器人用户给机器人Sale绑定
+        # newUser, created = User.objects.get_or_create(username='robert'+company,is_superuser=0,first_name='',
+        #                                               last_name='',email='',is_starff=1,is_active=1,date_joined='')
+        # newUser.set_password("123456")
+        # newUser.userprofile.company = company
+        # newUser.userprofile.failcount = 0
+        # newUser.userpfofile.user = newUser
+        # newUser.userprofile.commit = 0
+        # newUser.userprofile.grade = 0
+        #
+        # newUser.save()
+
 
         for i in range(1, int(saleCount)+1):
             if i<10:

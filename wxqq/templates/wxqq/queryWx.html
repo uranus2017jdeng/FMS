@@ -78,7 +78,8 @@
                     }
                 </script>
                 {% endif %}
-                {% if  request.user.userprofile.title.role_name not in 'salemanager' and not wxObj.delete %}
+{#                {% if request.user.userprofile.title.role_name not in 'salemanager' and not wxObj.delete  %}#}
+                {% if request.user.userprofile.title.role_name in 'saleboss' and not wxObj.delete  %}
                 <button type="button" class="btn btn-sm btn-primary" onclick="editWx(this)"
                     data-id="{{ wxObj.id }}"
                     data-page="{{ wxPage.number }}"
@@ -92,6 +93,7 @@
                     data-bindqq="{{ wxObj.bindqq }}"
                 >编辑</button>
                     <button type="button" class="btn btn-sm btn-danger" onclick="delWx(this)"
+                        {% if request.user.userprofile.title.role_name == 'sale' %} style="display: none" {% endif %}
                         data-page="{{ wxPage.number }}"
                         data-id="{{ wxObj.id }}">标记失效</button>
                 {% endif %}

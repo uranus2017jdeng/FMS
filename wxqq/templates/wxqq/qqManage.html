@@ -361,7 +361,7 @@
     </script>
     <br/>
     <br/>
-    {% if request.user.userprofile.title.role_name != 'sale' %}
+{#    {% if request.user.userprofile.title.role_name != 'sale' %}#}
     <form id="searchQqForm" method="POST" class="form-horizontal ">
         <div class="form-group">
             <label class="col-md-1 control-label">qq</label>
@@ -390,7 +390,7 @@
             <div class="col-md-1">
                     <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
             </div>
-            {% if request.user.userprofile.title.role_name in "saleboss admin ops" %}
+            {% if request.user.userprofile.title.role_name in "saleboss admin ops sale" %}
             <div class="col-md-2">
                     <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addQqModal">新增qq</button>
             </div>
@@ -398,6 +398,6 @@
 
         </div>
     </form>
-    {% endif %}
+{#    {% endif %}#}
     <div id="qqDiv"></div>
 {% endblock %}

@@ -65,7 +65,7 @@
                         <div class="form-group">
                             <label class="col-md-offset-2 col-md-2 control-label" for="bindsale" >绑定开发</label>
                             <div class="col-md-5">
-                                <input type="text" class="form-control" id="bindsale" name="bindsale" style="font-size: small" placeholder="请输入开发ID，格式A01101" />
+                                <input type="text" class="form-control" id="bindsale" name="bindsale" style="font-size: small" placeholder="请输入开发ID，格式KFA01101" />
 {#                                <select type="select" class="form-control" id="bindsale" name="bindsale">#}
 {#                                <option>无</option>#}
 {#                                    {% if bindsales %}#}
@@ -389,7 +389,7 @@
     </script>
     <br/>
     <br/>
-    {% if request.user.userprofile.title.role_name != 'sale' %}
+{#    {% if request.user.userprofile.title.role_name != 'sale' %}#}
     <form id="searchWxForm" method="POST" class="form-horizontal ">
         <div class="form-group">
             <label class="col-md-1 control-label">微信ID</label>
@@ -418,13 +418,13 @@
             <div class="col-md-1">
                     <button type="submit" class="btn btn-sm btn-primary" >搜索</button>
             </div>
-            {% if request.user.userprofile.title.role_name in "saleboss admin ops" %}
-            <div class="col-md-2">
+            {% if request.user.userprofile.title.role_name in "saleboss admin ops sale" %}
+               <div class="col-md-2">
                     <button class="btn btn-sm btn-success" data-toggle="modal" data-target="#addWxModal">新增微信</button>
-            </div>
+               </div>
             {% endif %}
         </div>
     </form>
-    {% endif %}
+{#    {% endif %}#}
     <div id="wxDiv"></div>
 {% endblock %}

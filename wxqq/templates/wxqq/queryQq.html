@@ -58,7 +58,7 @@
                     }
                 </script>
                 {% endif %}
-                {% if request.user.userprofile.title.role_name not in 'salemanager' and not qqObj.delete %}
+                {% if request.user.userprofile.title.role_name in 'saleboss' and not qqObj.delete %}
                 <button type="button" class="btn btn-sm btn-primary" onclick="editQq(this)"
                     data-id="{{ qqObj.id }}"
                     data-company="{{ qqObj.company }}"
@@ -69,8 +69,9 @@
                     data-bindsale="{{ qqObj.bindsale.saleId }}"
                 >编辑</button>
 
-                <button type="button" class="btn btn-sm btn-danger" onclick="delQq(this)"
-                    data-id="{{ qqObj.id }}">标记失效</button>
+                <button type="button" class="btn btn-sm btn-danger"
+                    {% if request.user.userprofile.title.role_name == 'sale' %} style="display: none" {% endif %} onclick="delQq(this)"
+                    data-id="{{ qqObj.id }}"  >标记失效</button>
                 {% endif %}
                 {% if request.user.userprofile.title.role_name != 'sale' and qqObj.delete %}
                     <button type="button" class="btn btn-sm btn-danger" onclick="resetQq(this)"
