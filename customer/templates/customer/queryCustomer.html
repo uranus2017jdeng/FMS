@@ -40,6 +40,7 @@
 {#            <td>QQ号</td>#}
 {#            <td>QQ昵称</td>#}
             <td>初始资金</td>
+            <td>首次买入资金</td>
             <td>GEM</td>
             <td>合作状态</td>
 {#            <td>消息</td>#}
@@ -122,6 +123,7 @@
 {#            <td>{{ customerObj.qqid }}</td>#}
 {#            <td>{{ customerObj.qqname }}</td>#}
             <td>{{ customerObj.startup }}</td>
+            <td>{{ customerObj.first_trade_cash}}</td>
             <td>
                 {% if customerObj.gem %}
                     <span class="glyphicon glyphicon-ok"></span>
