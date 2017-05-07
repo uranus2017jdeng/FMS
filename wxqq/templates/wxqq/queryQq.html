@@ -60,6 +60,7 @@
                 {% endif %}
                 {% if request.user.userprofile.title.role_name in 'saleboss' and not qqObj.delete %}
                 <button type="button" class="btn btn-sm btn-primary" onclick="editQq(this)"
+                    {% if request.user.userprofile.title.role_name == 'sale' %} style="display: none" {% endif %}
                     data-id="{{ qqObj.id }}"
                     data-company="{{ qqObj.company }}"
                     data-password="{{ qqObj.password }}"
