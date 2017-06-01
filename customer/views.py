@@ -951,7 +951,7 @@ def sortAnalyzeReport(request):
     startDate = request.GET.get('startDate','')
     endDate = request.GET.get('endDate','')
     if startDate == '':
-        startDate = request.POST.get('startDate', datetime.date.today() - datetime.timedelta(days=60))
+        startDate = request.POST.get('startDate', datetime.date.today() - datetime.timedelta(days=14))
         endDate = request.POST.get('endDate', datetime.date.today()+ datetime.timedelta(days=1))
     stocks = stocks.filter(trade__create__lte=endDate, trade__create__gte=startDate,
                            trade__status=0).distinct()
@@ -963,11 +963,8 @@ def sortAnalyzeReport(request):
     elif request.user.userprofile.title.role_name == 'teacher':
         stocks = stocks.filter(trade__customer__teacher__binduser=request.user).distinct()
 
-    print(stocks.__len__())
     for stock in stocks:
-        print(stock.stockid)
-        trades = Trade.objects.filter(stock_id=stock.stockid, status=0, create__gte=startDate, create__lte=endDate)
-        print(trades.__len__())
+        trades = Trade.objects.filter(stockid=stock.stockid, status=0, create__gte=startDate, create__lte=endDate)
         if request.user.userprofile.title.role_name == 'teachermanager':
             trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
                                customer__teacher__department=request.user.userprofile.department)
@@ -985,8 +982,8 @@ def sortAnalyzeReport(request):
                 if trade.income > 0:
                     earnCount += 1
                     earnCash += trade.income
-                share = float(trade.share.split('|')[0]) / 10
-                trade.commission = trade.income * share
+                # share = float(trade.share.split('|')[0]) / 10
+                # trade.commission = trade.income * share
         except Exception as e:
             print('error')
         earnCash = float('%.2f' % earnCash)
@@ -994,6 +991,7 @@ def sortAnalyzeReport(request):
         stock.stockearncash = earnCash
         stock.save()
 
+    stocks = stocks.order_by('-stockearncount')
 
     p = Paginator(stocks, 20)
     try:
@@ -1011,7 +1009,8 @@ def sortAnalyzeReport(request):
     }
     # t2 = time.clock()
     # logger.error("customer/analyzeReport cost time: %f"%(t2-t1))
-    return render(request, 'customer/analyzeReport.html', data)
+    # return render(request, 'customer/analyzeReport.html', data)
+    return HttpResponse(json.dumps(data))
 
 @login_required()
 def getStockDetailForAnalyze(request):

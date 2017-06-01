@@ -145,11 +145,11 @@ STATICFILES_DIRS = (
 )
 STATIC_URL = '/static/'
 
-# STATIC_ROOT = 'D:/PycharmProjects/static/'
-STATIC_ROOT = '/Users/DengJ/Uranus/Work/WebDesign/PycharmProjects/static/'
-
-# UPLOAD_ROOT = 'D:/PycharmProjects/static/'
-UPLOAD_ROOT = '/Users/DengJ/Uranus/Work/WebDesign/PycharmProjects/static/'
+STATIC_ROOT = 'D:/PycharmProjects/static/'
+# STATIC_ROOT = '/Users/DengJ/Uranus/Work/WebDesign/PycharmProjects/static/'
+#
+UPLOAD_ROOT = 'D:/PycharmProjects/static/'
+# UPLOAD_ROOT = '/Users/DengJ/Uranus/Work/WebDesign/PycharmProjects/static/'
 
 FILE_CHARSET = 'utf-8'
 

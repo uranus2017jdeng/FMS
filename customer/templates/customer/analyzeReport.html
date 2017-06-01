@@ -82,7 +82,7 @@
 {#        <th width="5%">总买入资金</th>#}
         <th width="5%">交易数</th>
         <th width="5%">现价</th>
-        <th width="5%">浮盈个数</th>
+        <th width="5%"><label type="button" onclick="sortAnalyzeReport(this)">浮盈个数</label></th>
         <th width="5%">浮盈金额</th>
     </thead>
     <tbody>
@@ -203,6 +203,21 @@
                 }
              }
         }
+    }
+
+    function sortAnalyzeReport() {
+        alert('ok');
+        $.ajax({
+            url: "{% url 'customer:sortAnalyzeReport' %}",
+            type: 'POST',
+            dataType: 'json',
+            async: true,
+            data: { "startDate": "{{ startDate }}", "endDate": "{{ endDate }}" },
+            success: function (data) {
+               alert('ok2');
+            }
+        });
+
     }
 
 {#    function getCurrentPrice(name,id){#}
