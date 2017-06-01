@@ -38,6 +38,7 @@ urlpatterns = [
     url(r'^getStockDetail$', views.getStockDetail, name='getStockDetail'),
     url(r'^dCustomerReport$', views.dCustomerReport, name='dCustomerReport'),
     url(r'^analyzeReport$', views.analyzeReport, name='analyzeReport'),
+    url(r'^sortAnalyzeReport$', views.sortAnalyzeReport, name='sortAnalyzeReport'),
     url(r'^getStockDetailForAnalyze$', views.getStockDetailForAnalyze, name='getStockDetailForAnalyze'),
     url(r'^calcProfitByStockId$', views.calcProfitByStockId, name='calcProfitByStockId'),
     url(r'^resumeDishonestCustomer$', views.resumeDishonestCustomer, name='resumeDishonestCustomer'),

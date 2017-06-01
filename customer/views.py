@@ -943,6 +943,77 @@ def analyzeReport(request):
     return render(request, 'customer/analyzeReport.html', data)
 
 @login_required()
+def sortAnalyzeReport(request):
+    # t1 = time.clock()
+    if not request.user.userprofile.title.role_name in ['admin', 'ops', 'teacher', 'teachermanager', 'teacherboss']:
+        return HttpResponseRedirect("/")
+    stocks = Stock.objects.all()
+    startDate = request.GET.get('startDate','')
+    endDate = request.GET.get('endDate','')
+    if startDate == '':
+        startDate = request.POST.get('startDate', datetime.date.today() - datetime.timedelta(days=60))
+        endDate = request.POST.get('endDate', datetime.date.today()+ datetime.timedelta(days=1))
+    stocks = stocks.filter(trade__create__lte=endDate, trade__create__gte=startDate,
+                           trade__status=0).distinct()
+    if request.user.userprofile.title.role_name == 'teachermanager':
+        stocks = stocks.filter(trade__customer__teacher__company=request.user.userprofile.company,
+                               trade__customer__teacher__department=request.user.userprofile.department).distinct()
+    elif request.user.userprofile.title.role_name == 'teacherboss':
+        stocks = stocks.filter(trade__customer__teacher__company=request.user.userprofile.company).distinct()
+    elif request.user.userprofile.title.role_name == 'teacher':
+        stocks = stocks.filter(trade__customer__teacher__binduser=request.user).distinct()
+
+    print(stocks.__len__())
+    for stock in stocks:
+        print(stock.stockid)
+        trades = Trade.objects.filter(stock_id=stock.stockid, status=0, create__gte=startDate, create__lte=endDate)
+        print(trades.__len__())
+        if request.user.userprofile.title.role_name == 'teachermanager':
+            trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
+                               customer__teacher__department=request.user.userprofile.department)
+        elif request.user.userprofile.title.role_name == 'teacherboss':
+            trades = trades.filter(customer__teacher__company=request.user.userprofile.company)
+        else:
+            trades = trades
+        earnCount = 0
+        earnCash = 0.
+        try:
+            sellprice = stock.stockprice
+            for trade in trades:
+                trade.sellprice = sellprice
+                trade.income = (float(sellprice) - float(trade.buyprice)) * trade.buycount
+                if trade.income > 0:
+                    earnCount += 1
+                    earnCash += trade.income
+                share = float(trade.share.split('|')[0]) / 10
+                trade.commission = trade.income * share
+        except Exception as e:
+            print('error')
+        earnCash = float('%.2f' % earnCash)
+        stock.stockearncount = earnCount
+        stock.stockearncash = earnCash
+        stock.save()
+
+
+    p = Paginator(stocks, 20)
+    try:
+        page = int(request.GET.get('page', '1'))
+    except ValueError:
+        page = 1
+    try:
+        stockPage = p.page(page)
+    except (EmptyPage, InvalidPage):
+        stockPage = p.page(p.num_pages)
+    data = {
+        "stockPage": stockPage,
+        "startDate": str(startDate),
+        "endDate": str(endDate),
+    }
+    # t2 = time.clock()
+    # logger.error("customer/analyzeReport cost time: %f"%(t2-t1))
+    return render(request, 'customer/analyzeReport.html', data)
+
+@login_required()
 def getStockDetailForAnalyze(request):
     stockid = request.POST.get('stock')
     sellprice = request.POST.get('sellprice')

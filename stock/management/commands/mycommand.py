@@ -30,13 +30,23 @@ class Worker(threading.Thread):
         #   在 __init__ 方法内部，可将各种属性绑定到 self ，因为 self 之乡创建的实例本身
 
         threading.Thread.__init__(self)
+
         self.work_queue = work_queue
         self.result_queue = result_queue
+
+        self.setDaemon(True)
+        try:
+            self.work_queue.get(True,3)
+        except:
+            pass
         self.start()
 
+
     def run(self):
-        #   增加一个新方法 run
+        # #   增加一个新方法 run
+        # print('run')
         while True:
+            # print('run')
             func, arg, code_index = self.work_queue.get()
             # --   获取 func, arg, code_index
             res = func(arg, code_index)
@@ -59,25 +69,29 @@ class Worker(threading.Thread):
                 # --               reverse=True：降序排列
                 # res.insert(0, ('0', u'名称     股价'))
                 # --               list.insert() 用于将指定对象插入列表的指定位置
-                print '***** start *****'
                 for obj in res:
-                    print obj[1]
-                    # print(obj)
-                    # os.system('pause')
-                print '***** end *****'
-            self.work_queue.task_done()
+                    strcode = obj[2][2:]
+                    stocke = Stock.objects.get(stockid=strcode)
+                    stocke.stockprice = obj[1]
+                    stocke.save()
+
+
+
+
+            # self.work_queue.task_done()
             # --           在完成一项工作后，Queue.task_done() 会向任务已经完成的队列发送一个信号
 
 class StockPrice(object):
       # 股票实时价格获取
     def __init__(self, code, thread_num):
+        # print('init')
         self.code = code
         self.work_queue = Queue()
         self.threads = []
         self.__init_thread_poll(thread_num)
 
     def __init_thread_poll(self, thread_num):
-
+        # print('init_thread_poll')
         self.params = self.code.split(',')
         # --       parmas 会向函数传入一个字典
         #         self.params.extend(['s_sh000001', 's_sz399001'])
@@ -88,14 +102,18 @@ class StockPrice(object):
             self.threads.append(Worker(self.work_queue, self.result_queue))
 
     def __add_work(self, stock_code, code_index):
+        # print('__add__work')
         self.work_queue.put((self.value_get, stock_code, code_index))
         #       self.value_get 涉及到下面的装饰器
 
     def del_params(self):
+        # print('del_params')
         for obj in self.params:
             self.__add_work(obj, self.params.index(obj))
 
+
     def wait_all_complete(self):
+        # print('wait_all_complete')
         for thread in self.threads:
             if thread.isAlive():
                     #           判断线程是否是激活的
@@ -118,7 +136,7 @@ class StockPrice(object):
         res = r.text.split(',')
         if len(res) > 1:
             name, now = r.text.split(',')[0][slice_num:], r.text.split(',')[value_num]
-        return code_index, name + ' ' + now
+        return code_index, now, code
 
 
 
@@ -133,14 +151,13 @@ class Command(BaseCommand):
                           help="the stock's code that you want to query.")
         #   使用 add_option() 来定义命令行参数，即加入选项
         #   dest 是储存的变量
-        parser.add_option('-s', '--sleep-time', dest='sleep_time', default=6, type="int",
+        parser.add_option('-s', '--sleep-time', dest='sleep_time', default=120, type="int",
                           help='How long does it take to check one more time.')
         parser.add_option('-t', '--thread-num', dest='thread_num', default=3, type='int',
                           help="thread num.")
         options, args = parser.parse_args(args=sys.argv[1:])
 
-        ff = open("/Users/DengJ/PycharmProjects/Test/stockCodeList.txt", "r")
-
+        # ff = open("/Users/DengJ/PycharmProjects/Test/stockCodeList.txt", "r")
         # stocks = ''
         # for stock in ff.readlines():
         #     strTemp = stock.split("\t")[0] + ','
@@ -154,6 +171,7 @@ class Command(BaseCommand):
 
         stockscode = ''
         stocks = Stock.objects.all()
+        count = 0
         for stock in stocks:
             strTemp = stock.stockid + ','
             strTemp = unicode.encode(strTemp,encoding='utf-8')
@@ -162,12 +180,11 @@ class Command(BaseCommand):
             elif strTemp[0] == '6':
                 strTemp = 'sh' + strTemp
             stockscode = stockscode + strTemp
-
-        print(stockscode)
-        n = 0
-        assert n != 0, 'n is zero'
+            # count = count + 1
+            # if count > 1000:
+            #     break
         # options.codes = "".join(tuple(stocks))
-        options.codes = stocks[0:-1]
+        options.codes = stockscode[0:-1]
         # options.codes = options.codes[0:-1]
 
 
@@ -180,7 +197,11 @@ class Command(BaseCommand):
 
         stock = StockPrice(options.codes, options.thread_num)
 
-        # while True:
-        stock.del_params()
-        # time.sleep(options.sleep_time)
-        #       sleep() 用于使程序休眠
+        while True:
+            t1 = time.time()
+            stock.del_params()
+            # stock.wait_all_complete()
+            time.sleep(options.sleep_time)
+            break
+
+               # sleep() 用于使程序休眠
