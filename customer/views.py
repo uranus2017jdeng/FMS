@@ -891,13 +891,31 @@ def analyzeReport(request):
     # t1 = time.clock()
     if not request.user.userprofile.title.role_name in ['admin', 'ops', 'teacher', 'teachermanager', 'teacherboss']:
         return HttpResponseRedirect("/")
-    stocks = Stock.objects.all()
-    stockid = request.POST.get('stockid', '')
+
     startDate = request.GET.get('startDate','')
     endDate = request.GET.get('endDate','')
+
     if startDate == '':
         startDate = request.POST.get('startDate', datetime.date.today() - datetime.timedelta(days=14))
-        endDate = request.POST.get('endDate', datetime.date.today()+ datetime.timedelta(days=1))
+        endDate = request.POST.get('endDate', datetime.date.today() + datetime.timedelta(days=1))
+
+    data = {
+        "startDate": str(startDate),
+        "endDate": str(endDate),
+    }
+    # t2 = time.clock()
+    # logger.error("customer/analyzeReport cost time: %f"%(t2-t1))
+    return render(request, 'customer/analyzeReport.html', data)
+
+
+@login_required()
+def queryAnalyzeReport(request):
+    stocks = Stock.objects.all()
+    stockid = request.POST.get('stockid','')
+    startDate = request.GET.get('startDate')
+    endDate = request.GET.get('endDate')
+    sort = request.GET.get('sort','')
+
     stocks = stocks.filter(stockid__icontains=stockid, trade__create__lte=endDate, trade__create__gte=startDate,
                            trade__status=0).distinct()
     if request.user.userprofile.title.role_name == 'teachermanager':
@@ -908,20 +926,12 @@ def analyzeReport(request):
     elif request.user.userprofile.title.role_name == 'teacher':
         stocks = stocks.filter(trade__customer__teacher__binduser=request.user).distinct()
 
-    # url = 'http://hq.sinajs.cn/list='
-    # count = 0
-    # for stock in stocks:
-    #     count += 1
-    #     if stock.stockid[0] == '0' or stock.stockid[0] == '3':
-    #         stockname = 'sz'+stock.stockid.encode('ascii')
-    #     elif stock.stockid[0] == '6':
-    #         stockname = 'sh' + stock.stockid.encode('ascii')
-    #
-    #     print(count)
-    #     r = urllib2.Request(url+stockname)
-    #     r2 = urllib2.urlopen(r)
-    #     contents = r2.read()
-    #     stock.stockprice = float(contents.split(",")[3])
+
+    if sort == '1' :
+       stocks = stocks.order_by('-stockearncount')
+    elif sort == '2':
+       stocks = stocks.order_by('-stockearncash')
+
 
     p = Paginator(stocks, 20)
     try:
@@ -932,15 +942,19 @@ def analyzeReport(request):
         stockPage = p.page(page)
     except (EmptyPage, InvalidPage):
         stockPage = p.page(p.num_pages)
+
+
+    # data = {
+    #     "customerPage": customerPage,
+    #     "requestArgs": getArgsExcludePage(request),
+    # }
     data = {
-        "stockid": stockid,
         "stockPage": stockPage,
         "startDate": str(startDate),
         "endDate": str(endDate),
+        # "requestArgs": getArgsExcludePage(request),
     }
-    # t2 = time.clock()
-    # logger.error("customer/analyzeReport cost time: %f"%(t2-t1))
-    return render(request, 'customer/analyzeReport.html', data)
+    return render(request, 'customer/queryAnalyzeReport.html', data)
 
 @login_required()
 def sortAnalyzeReport(request):
@@ -950,6 +964,8 @@ def sortAnalyzeReport(request):
     stocks = Stock.objects.all()
     startDate = request.GET.get('startDate','')
     endDate = request.GET.get('endDate','')
+    sort = request.GET.get('sort','')
+
     if startDate == '':
         startDate = request.POST.get('startDate', datetime.date.today() - datetime.timedelta(days=14))
         endDate = request.POST.get('endDate', datetime.date.today()+ datetime.timedelta(days=1))
@@ -991,7 +1007,10 @@ def sortAnalyzeReport(request):
         stock.stockearncash = earnCash
         stock.save()
 
-    stocks = stocks.order_by('-stockearncount')
+    if sort == '1' :
+       stocks = stocks.order_by('-stockearncount')
+    elif sort == '2':
+       stocks = stocks.order_by('-stockearncash')
 
     p = Paginator(stocks, 20)
     try:
@@ -1009,8 +1028,8 @@ def sortAnalyzeReport(request):
     }
     # t2 = time.clock()
     # logger.error("customer/analyzeReport cost time: %f"%(t2-t1))
-    # return render(request, 'customer/analyzeReport.html', data)
-    return HttpResponse(json.dumps(data))
+    return render(request, 'customer/queryAnalyzeReport.html', data)
+    # return HttpResponse(json.dumps(data))
 
 @login_required()
 def getStockDetailForAnalyze(request):
