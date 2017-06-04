@@ -3,6 +3,7 @@
 
 from django.core.management.base import BaseCommand
 from stock.models import *
+from trade.models import *
 
 # -*- coding:utf-8 -*-
 # __author__ = 'felix'
@@ -71,9 +72,19 @@ class Worker(threading.Thread):
                 # --               list.insert() 用于将指定对象插入列表的指定位置
                 for obj in res:
                     strcode = obj[2][2:]
-                    stocke = Stock.objects.get(stockid=strcode)
-                    stocke.stockprice = obj[1]
-                    stocke.save()
+                    stock = Stock.objects.get(stockid=strcode)
+                    stock.stockprice = obj[1]
+                    stock.save()
+                    print(obj[1])
+
+                    trades = Trade_memory.objects.filter(stockid=stock.stockid)
+                    if trades.count():
+                        for trade in trades:
+                            if trade.trade.status == 0:
+                                trade.income = (float(stock.stockprice) - float(trade.trade.buyprice)) * trade.trade.buycount
+                                trade.save()
+                            else:
+                                trade.delete()
 
 
 
@@ -151,9 +162,9 @@ class Command(BaseCommand):
                           help="the stock's code that you want to query.")
         #   使用 add_option() 来定义命令行参数，即加入选项
         #   dest 是储存的变量
-        parser.add_option('-s', '--sleep-time', dest='sleep_time', default=120, type="int",
+        parser.add_option('-s', '--sleep-time', dest='sleep_time', default=40, type="int",
                           help='How long does it take to check one more time.')
-        parser.add_option('-t', '--thread-num', dest='thread_num', default=3, type='int',
+        parser.add_option('-t', '--thread-num', dest='thread_num', default=6, type='int',
                           help="thread num.")
         options, args = parser.parse_args(args=sys.argv[1:])
 
@@ -170,15 +181,24 @@ class Command(BaseCommand):
         # ff.close()
 
         stockscode = ''
-        stocks = Stock.objects.all()
+        # stocks = Stock.objects.all()
+        stocks = Trade_memory.objects.values('stockid').distinct()
+        # print(type(a))
+        # for i in a:
+        #     print(i['stockid'])
+
+
         count = 0
         for stock in stocks:
-            strTemp = stock.stockid + ','
+            # strTemp = stock.stockid + ','
+            strTemp = stock['stockid']+','
             strTemp = unicode.encode(strTemp,encoding='utf-8')
             if strTemp[0] == '0' or strTemp[0] == '3':
                 strTemp = 'sz' + strTemp
             elif strTemp[0] == '6':
                 strTemp = 'sh' + strTemp
+            else:
+                print(strTemp)
             stockscode = stockscode + strTemp
             # count = count + 1
             # if count > 1000:

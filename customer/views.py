@@ -979,35 +979,62 @@ def sortAnalyzeReport(request):
     elif request.user.userprofile.title.role_name == 'teacher':
         stocks = stocks.filter(trade__customer__teacher__binduser=request.user).distinct()
 
-    for stock in stocks:
-        trades = Trade.objects.filter(stockid=stock.stockid, status=0, create__gte=startDate, create__lte=endDate)
-        if request.user.userprofile.title.role_name == 'teachermanager':
-            trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
-                               customer__teacher__department=request.user.userprofile.department)
-        elif request.user.userprofile.title.role_name == 'teacherboss':
-            trades = trades.filter(customer__teacher__company=request.user.userprofile.company)
-        else:
-            trades = trades
-        earnCount = 0
-        earnCash = 0.
-        try:
-            sellprice = stock.stockprice
-            for trade in trades:
-                trade.sellprice = sellprice
-                trade.income = (float(sellprice) - float(trade.buyprice)) * trade.buycount
-                if trade.income > 0:
-                    earnCount += 1
-                    earnCash += trade.income
-                # share = float(trade.share.split('|')[0]) / 10
-                # trade.commission = trade.income * share
-        except Exception as e:
-            print('error')
-        earnCash = float('%.2f' % earnCash)
-        stock.stockearncount = earnCount
-        stock.stockearncash = earnCash
-        stock.save()
+    if stocks.count():
+        for stock in stocks:
+            trades = Trade_memory.objects.filter(stockid=stock.stockid,trade__create__gte=startDate,trade__create__lte=endDate)
+            earnCount = 0
+            earnCash = 0.00
+            if trades.count():
+                for trade in trades:
+                    if trade.income > 0.:
+                        earnCount += 1
+                        earnCash += float(trade.income)
+            earnCash = float('%.2f' % earnCash)
+            stock.stockearncount = earnCount
+            stock.stockearncash = earnCash
+            stock.save()
 
-    if sort == '1' :
+
+    # for stock in stocks:
+    #     trades = Trade.objects.filter(stockid=stock.stockid, status=0, create__gte=startDate, create__lte=endDate)
+    #     if request.user.userprofile.title.role_name == 'teachermanager':
+    #         trades = trades.filter(customer__teacher__company=request.user.userprofile.company,
+    #                            customer__teacher__department=request.user.userprofile.department)
+    #     elif request.user.userprofile.title.role_name == 'teacherboss':
+    #         trades = trades.filter(customer__teacher__company=request.user.userprofile.company)
+    #     else:
+    #         trades = trades
+    #     earnCount = 0
+    #     earnCash = 0.
+    #     try:
+    #         sellprice = stock.stockprice
+    #         for trade in trades:
+    #             trade.sellprice = sellprice
+    #             trade.income = (float(sellprice) - float(trade.buyprice)) * trade.buycount
+    #             if trade.income > 0:
+    #                 earnCount += 1
+    #                 earnCash += trade.income
+    #             # share = float(trade.share.split('|')[0]) / 10
+    #             # trade.commission = trade.income * share
+    #     except Exception as e:
+    #         print('error')
+    #     earnCash = float('%.2f' % earnCash)
+    #     stock.stockearncount = earnCount
+    #     stock.stockearncash = earnCash
+    #     stock.save()
+
+    #  sort
+    # stocks = stocks.filter(trade__create__lte=endDate, trade__create__gte=startDate,
+    #                        trade__status=0).distinct()
+    # if request.user.userprofile.title.role_name == 'teachermanager':
+    #     stocks = stocks.filter(trade__customer__teacher__company=request.user.userprofile.company,
+    #                            trade__customer__teacher__department=request.user.userprofile.department).distinct()
+    # elif request.user.userprofile.title.role_name == 'teacherboss':
+    #     stocks = stocks.filter(trade__customer__teacher__company=request.user.userprofile.company).distinct()
+    # elif request.user.userprofile.title.role_name == 'teacher':
+    #     stocks = stocks.filter(trade__customer__teacher__binduser=request.user).distinct()
+
+    if sort == '1':
        stocks = stocks.order_by('-stockearncount')
     elif sort == '2':
        stocks = stocks.order_by('-stockearncash')

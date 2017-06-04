@@ -29,7 +29,7 @@
             success:function(price){
                 var tmp = eval(result);
                 var elements = tmp.split(",");
-                var sellPrice = elements[3];
+                var sellPrice = parseFloat(elements[3]).toFixed(2);
                 id.val(sellPrice);
                 var stockid = $(id).data("stockid");
                 loadStockDetailBySellPrice(stockid, sellPrice );
@@ -48,9 +48,9 @@
         <th width="5%">最高买入价</th>
 {#        <th width="5%">总买入资金</th>#}
         <th width="5%">交易数</th>
-        <th width="5%">现价</th>
-        <th width="5%"><label type="button" id="earncount" data-sort="1" onclick="sortAnalyzeReport(this)">浮盈个数</label></th>
-        <th width="5%"><label type="button" id="earncash" data-sort="2" onclick="sortAnalyzeReport(this)">浮盈金额</label></th>
+        <th width="5%">大盘行情/本地服务器</th>
+        <th width="5%"><div type="button" id="earncount" data-sort="1" onclick="sortAnalyzeReport(this)" style="cursor: pointer">浮盈个数</div></th>
+        <th width="5%"><div type="button" id="earncash" data-sort="2" onclick="sortAnalyzeReport(this)" style="cursor: pointer">浮盈金额</div></th>
     </thead>
     <tbody>
         {% for stock in stockPage %}
@@ -64,8 +64,8 @@
 {# --           <td>{% getCustomerCountByStockAndUser stock.id request.user.id startDate endDate %}</td>#}
             <td> {% getTradeTotalByStockAndUser stock.id request.user.id startDate endDate %}
 
-            <td><input type="text" id="current_price_{{ stock.id }}" class="current_price" name="{{ stock.stockid }}"
-                       data-stockid="{{ stock.id }}" data-userid="{{ request.user.id }} " />{{ stock.stockprice }}</td>
+            <td><input type="text" style="border: hidden; width: 40px" id="current_price_{{ stock.id }}" class="current_price" name="{{ stock.stockid }}"
+                       data-stockid="{{ stock.id }}" data-userid="{{ request.user.id }} " /> /&nbsp;&nbsp;{{ stock.stockprice }}</td>
             <script type="text/javascript">
                 setTimeout(
                       setInterval(getCurrentPrice,30*1000,$("#current_price_{{ stock.id }}"))

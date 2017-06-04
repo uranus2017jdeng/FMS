@@ -22,7 +22,7 @@ from shande.settings import BASE_DIR,UPLOAD_ROOT
 from super.models import *
 from teacher.models import *
 
-# from trade.models import *
+from trade.models import *
 # from customer.models import *
 
 
@@ -346,11 +346,15 @@ def getTransmission(request):
 
 def demo(request):
     if request.user.is_authenticated():
-        birthday = time.strftime('%m%d',time.localtime(time.time()))
-        users = User.objects.filter(userprofile__cid__contains=birthday)
-        for birthdayuser in users:
-            if birthdayuser.userprofile.cid[10:14] != birthday:
-                users = users.exclude(user=birthdayuser)
+        # birthday = time.strftime('%m%d',time.localtime(time.time()))
+        # users = User.objects.filter(userprofile__cid__contains=birthday)
+        # for birthdayuser in users:
+        #     if birthdayuser.userprofile.cid[10:14] != birthday:
+        #         users = users.exclude(user=birthdayuser)
+        trades = Trade.objects.all()
+        for trade in trades:
+            if trade.status == 0:
+                newTrade = Trade_memory.objects.create(trade=trade, stockid=trade.stockid)
         return render(request, 'super/demo.html', locals())
     else:
         redirect_to = 'accounts/login/'

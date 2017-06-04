@@ -56,11 +56,7 @@
 
 {##}
     function sortAnalyzeReport(obj) {
-{#        $('#eid').val($(obj).data("id"));#}
-{#        a = $(obj).data("sort");#}
-{#        alert(a);#}
         $('#sort').val($(obj).data("sort"));
-
         searchData = $('#searchAnalyzeForm').serialize();
         data = searchData;
         $('#analyzeReportDiv').load("{% url 'customer:sortAnalyzeReport' %}",data)

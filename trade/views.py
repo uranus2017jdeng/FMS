@@ -107,6 +107,9 @@ def addTrade(request):
         # stock, created = Stock.objects.get_or_create(stockid=request.POST.get('stockid'), stockname=request.POST.get('stockname'))
         if stock:
             newTrade = Trade.objects.create(customer=customer, stock=stock, create=timezone.now())
+            #record to trade_memory
+            newTrademem = Trade_memory.objects.create(trade=newTrade)
+
             customer.tradecount += 1
         else:
             raise Exception("stockerror")
@@ -116,6 +119,9 @@ def addTrade(request):
 
         newTrade.buyprice = buyprice
         newTrade.buycount = buycount
+
+        newTrademem.stockid = newTrade.stockid
+        newTrademem.save()
 
         newTrade.buycash = buycash
         customer.modify = timezone.now()
